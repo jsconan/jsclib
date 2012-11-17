@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>.: JSC Library :: Tests suite :.</title>
+        <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-git.css" type="text/css" media="screen" />
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <script type="text/javascript" src="http://code.jquery.com/qunit/qunit-git.js"></script>
+        <script type="text/javascript" src="js/core.js"></script>
+        <script type="text/javascript" src="js/test/testsuite.js"></script>
+        <script type="text/javascript" src="js/test/core.js"></script>
+        <script>
+            $(function(){
+                $("title").text(".: JSC Library v" + JSC.version + " :: Tests suite :.");
+            });
+        </script>
+    </body>
+</html>
