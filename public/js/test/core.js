@@ -1,126 +1,113 @@
 /*!
- * Test Suite for JavaScript Class Library v0.1 (JSC v0.1)
+ * Test Suite for JavaScript Class Library v0.2 (JSC 0.2)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
  */
 (function(window, undefined) {
-    var testSuiteJSC = {
+    var suite = {
         _name : "JSC",
 
         /**
          * Test of JSC
          */
         JSC : function() {
-            ok("undefined" != typeof JSC, "JSC must exist");
-            ok("undefined" != typeof JSC.className, "Class name of JSC must be defined");
-            ok("undefined" != typeof JSC.version, "Version of JSC must be defined");
+            equal(typeof JSC, "object", "JSC must be an object");
+            equal(JSC.className, "JSC", "Class name of JSC must be defined");
+            equal(JSC.version, "0.2", "Version of JSC must be defined");
+            equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
         /**
          * Test of JSC.id()
          */
         id : function() {
-            var value_1 = JSC.id(), value_2 = JSC.id();
-            equal(typeof value_1, "number", "Generated identifiers have to be number");
-            equal(typeof value_2, "number", "Generated identifiers have to be number");
-            notEqual(value_1, value_2, "Generated identifiers have to be unique");
-        },
+            var value_1 = JSC.id(),
+                value_2 = JSC.id(),
+                value_3 = [],
+                guid = -1,
+                ret_1, ret_2, ret_3;
 
-        /**
-         * Test of JSC.tag()
-         */
-        tag : function() {
-            var value_1 = {}, value_2 = {}, value_3 = {}, guid = -1;
+            equal(typeof value_1, "number", "JSC.id() must return a number #1");
+            equal(typeof value_2, "number", "JSC.id() must return a number #2");
+            notEqual(value_1, value_2, "The values returned by JSC.id() have to be unique and different each time");
 
-            equal(value_1.guid, undefined, "Initial GUID");
-            equal(value_2.guid, undefined, "Initial GUID");
+            value_1 = {};
+            value_2 = {};
+            ok("undefined" === typeof value_1.guid && "undefined" === typeof value_2.guid && "undefined" === typeof value_3.guid, "New objects must not have a global unique identifier");
 
-            var ret_1 = JSC.tag(value_1);
-            var ret_2 = JSC.tag(value_2);
-            var ret_3 = JSC.tag(value_3, guid);
-            var ret_4 = JSC.tag(JSC);
-            var ret_5 = JSC.tag(JSC, guid);
+            equal(JSC.id(undefined, guid), guid, "JSC.id(undefined, guid) must return guid");
 
-            notEqual(ret_1, undefined, "A GUID have to be set");
-            notEqual(ret_2, undefined, "A GUID have to be set");
-            notEqual(ret_3, undefined, "A GUID have to be set");
-            notEqual(ret_4, undefined, "A GUID have to be set");
-            notEqual(ret_5, undefined, "A GUID have to be set");
-            equal(ret_3, guid, "Got GUID must be equal to given one");
-            equal(ret_4, JSC.guid, "Got GUID must be equal to given one");
-            equal(ret_5, JSC.guid, "Got GUID must be equal to given one");
+            ret_1 = JSC.id(value_1);
+            ret_2 = JSC.id(value_2);
 
-            equal(typeof ret_1, "number", "A GUID have to be a number");
-            equal(typeof ret_2, "number", "A GUID have to be a number");
-            equal(typeof ret_3, "number", "A GUID have to be a number");
-            equal(typeof ret_4, "number", "A GUID have to be a number");
-            equal(typeof ret_5, "number", "A GUID have to be a number");
+            equal(typeof ret_1, "number", "JSC.id(value_1) must return a number");
+            equal(typeof ret_2, "number", "JSC.id(value_2) must return a number");
+            notEqual(ret_1, ret_2, "The values returned by JSC.id() have to be unique for a particular given value #1");
 
-            notEqual(value_1.guid, undefined, "A GUID have to be set");
-            notEqual(value_2.guid, undefined, "A GUID have to be set");
-            notEqual(value_3.guid, undefined, "A GUID have to be set");
-            notEqual(JSC.guid, undefined, "A GUID have to be set");
+            ret_3 = JSC.id(value_1);
+            ret_4 = JSC.id(value_2);
+            equal(typeof ret_3, "number", "JSC.id(value_3) must return a number");
+            equal(typeof ret_4, "number", "JSC.id(value_4) must return a number");
+            notEqual(ret_3, ret_4, "The values returned by JSC.id() have to be unique for a particular given value #2");
+            equal(ret_1, ret_3, "JSC.id() must always return same number each time it is called for a same value #1");
+            equal(ret_2, ret_4, "JSC.id() must always return same number each time it is called for a same value #2");
 
-            notEqual(ret_1, ret_2, "Generated identifiers have to be unique");
-            notEqual(value_1.guid, value_2.guid, "Generated identifiers have to be unique");
+            equal(ret_1, value_1.guid, "A GUID have to be set #1");
+            equal(ret_2, value_2.guid, "A GUID have to be set #2");
+
+            ret_1 = JSC.id(value_3, guid);
+            equal(ret_1, guid, "When a guid is given to JSC.id(), it must be used");
+            equal(ret_1, value_3.guid, "A GUID have to be set #3");
+
+            guid = JSC.guid;
+            ret_1 = JSC.id(JSC);
+            ok(ret_1 === guid && JSC.guid === guid, "When applied on JSC, JSC.id() must not corrupt its GUID");
         },
 
         /**
          * Test of JSC.type()
          */
         type : function() {
-            // type of undefined
             var undef;
             equal(JSC.type(), "undefined", "Type of undefined");
             equal(JSC.type(undef), "undefined", "Type of undefined variable");
             equal(JSC.type(undefined), "undefined", "Type of undefined value");
 
-            // type of Date
-            equal(JSC.type(new Date()), "Date", "Type of Date value");
+            equal(JSC.type(new Date()), "Date", "Type of Date instance");
 
-            // type of RexExp
-            equal(JSC.type(new RegExp()), "RegExp", "Type of RegExp value");
+            equal(JSC.type(new RegExp()), "RegExp", "Type of RegExp instance");
             equal(JSC.type(/test/), "RegExp", "Type of RegExp value");
 
-            // type of Boolean
-            equal(JSC.type(new Boolean()), "Boolean", "Type of Boolean value");
-            equal(JSC.type(true), "Boolean", "Type of Boolean value");
-            equal(JSC.type(false), "Boolean", "Type of Boolean value");
+            equal(JSC.type(new Boolean()), "Boolean", "Type of Boolean instance");
+            equal(JSC.type(true), "Boolean", "Type of Boolean value true");
+            equal(JSC.type(false), "Boolean", "Type of Boolean value false");
 
-            // type of String
-            equal(JSC.type(new String()), "String", "Type of String value");
-            equal(JSC.type(""), "String", "Type of String value");
+            equal(JSC.type(new String()), "String", "Type of String instance");
+            equal(JSC.type(""), "String", "Type of empty String value");
             equal(JSC.type("test"), "String", "Type of String value");
 
-            // type of Array
-            equal(JSC.type(new Array()), "Array", "Type of Array value");
-            equal(JSC.type([]), "Array", "Type of Array value");
-            equal(JSC.type("1,2,3".split(',')), "Array", "Type of Array value");
+            equal(JSC.type(new Array()), "Array", "Type of Array instance");
+            equal(JSC.type([]), "Array", "Type of empty Array value");
+            equal(JSC.type([1,2,3]), "Array", "Type of Array value");
+            equal(JSC.type("1,2,3".split(',')), "Array", "Type of result Array value");
 
-            // type of Number
-            equal(JSC.type(new Number()), "Number", "Type of Number value");
-            equal(JSC.type(-1), "Number", "Type of Number value");
-            equal(JSC.type(0), "Number", "Type of Number value");
-            equal(JSC.type(10), "Number", "Type of Number value");
-            equal(JSC.type(14.501), "Number", "Type of Number value");
+            equal(JSC.type(new Number()), "Number", "Type of Number instance");
+            equal(JSC.type(-1), "Number", "Type of Number negative value");
+            equal(JSC.type(0), "Number", "Type of Number null value");
+            equal(JSC.type(10), "Number", "Type of Number positive value");
+            equal(JSC.type(14.501), "Number", "Type of Number float value");
 
-            // type of Object
-            equal(JSC.type(new Object()), "Object", "Type of Object value");
-            equal(JSC.type({}), "Object", "Type of Object value");
+            equal(JSC.type(new Object()), "Object", "Type of Object instance");
+            equal(JSC.type({}), "Object", "Type of empty Object value");
+            equal(JSC.type({test: 1}), "Object", "Type of Object value");
 
-            // type of Function
-            equal(JSC.type(new Function()), "Function", "Type of Function value");
+            equal(JSC.type(new Function()), "Function", "Type of Function instance");
             equal(JSC.type(function(){}), "Function", "Type of Function value");
-            equal(JSC.type(JSC.type), "Function", "Type of Function value");
+            equal(JSC.type(JSC.type), "Function", "Type of an object's method");
 
-            // type of Window
             equal(JSC.type(window), "Window", "Type of Window object");
 
-            // type of Document
-            equal(JSC.type(window.document), "Document", "Type of Window object");
-
-            // type of Class/object build by the library
             var mokName = "JSCTypeClass";
             var mokClass = function(){};
             mokClass.prototype.className = mokClass.className = mokName;
@@ -132,227 +119,322 @@
          * Test of JSC.isFunction()
          */
         isFunction : function() {
-            equal(JSC.isFunction(undefined), false, "an undefined value must not be considered as a function");
-            equal(JSC.isFunction(null), false, "a null value must not be considered as a function");
-            equal(JSC.isFunction({}), false, "an object must not be considered as a function");
-            equal(JSC.isFunction(new Object()), false, "an object must not be considered as a function");
-            equal(JSC.isFunction([]), false, "an array must not be considered as a function");
-            equal(JSC.isFunction(new Array()), false, "an array must not be considered as a function");
-            equal(JSC.isFunction("function"), false, "a string must not be considered as a function");
-            equal(JSC.isFunction(new String()), false, "a string must not be considered as a function");
-            equal(JSC.isFunction(10), false, "a number must not be considered as a function");
-            equal(JSC.isFunction(new Number()), false, "a number must not be considered as a function");
-            equal(JSC.isFunction(true), false, "a boolean must not be considered as a function");
-            equal(JSC.isFunction(new Boolean()), false, "a boolean must not be considered as a function");
-            equal(JSC.isFunction(/xyz/), false, "a regex must not be considered as a function");
-            equal(JSC.isFunction(new RegExp), false, "a regex must not be considered as a function");
+            equal(JSC.isFunction(), false, "An undefined value must not be considered as a function");
+            equal(JSC.isFunction(undefined), false, "An undefined value must not be considered as a function");
+            equal(JSC.isFunction(null), false, "A null value must not be considered as a function");
+            equal(JSC.isFunction({}), false, "An object must not be considered as a function");
+            equal(JSC.isFunction(new Object()), false, "An object must not be considered as a function");
+            equal(JSC.isFunction([]), false, "An array must not be considered as a function");
+            equal(JSC.isFunction(new Array()), false, "An array must not be considered as a function");
+            equal(JSC.isFunction("function"), false, "A string must not be considered as a function");
+            equal(JSC.isFunction(new String()), false, "A string must not be considered as a function");
+            equal(JSC.isFunction(10), false, "A number must not be considered as a function");
+            equal(JSC.isFunction(new Number()), false, "A number must not be considered as a function");
+            equal(JSC.isFunction(true), false, "A boolean must not be considered as a function");
+            equal(JSC.isFunction(new Boolean()), false, "A boolean must not be considered as a function");
+            equal(JSC.isFunction(/xyz/), false, "A regex must not be considered as a function");
+            equal(JSC.isFunction(new RegExp), false, "A regex must not be considered as a function");
 
-            equal(JSC.isFunction(function(){}), true, "a function must be considered as a function");
-            equal(JSC.isFunction(new Function()), true, "a function must be considered as a function");
-            equal(JSC.isFunction(JSC.Class("A")), true, "a class definition must be considered as a function");
+            equal(JSC.isFunction(function(){}), true, "A function must be considered as a function");
+            equal(JSC.isFunction(new Function()), true, "A function must be considered as a function");
+            equal(JSC.isFunction(JSC.Class("A")), true, "A class definition must be considered as a function");
+        },
+
+        /**
+         * Test of JSC.isClass()
+         */
+        isClass : function() {
+            var A = JSC.Class("A");
+
+            equal(JSC.isClass(), false, "An undefined value must not be considered as a class");
+            equal(JSC.isClass(undefined), false, "An undefined value must not be considered as a class");
+            equal(JSC.isClass(null), false, "A null value must not be considered as a class");
+            equal(JSC.isClass({}), false, "An object must not be considered as a class");
+            equal(JSC.isClass(new Object()), false, "An object must not be considered as a class");
+            equal(JSC.isClass([]), false, "An array must not be considered as a class");
+            equal(JSC.isClass(new Array()), false, "An array must not be considered as a class");
+            equal(JSC.isClass("function"), false, "A string must not be considered as a class");
+            equal(JSC.isClass(new String()), false, "A string must not be considered as a class");
+            equal(JSC.isClass(10), false, "A number must not be considered as a class");
+            equal(JSC.isClass(new Number()), false, "A number must not be considered as a class");
+            equal(JSC.isClass(true), false, "A boolean must not be considered as a class");
+            equal(JSC.isClass(new Boolean()), false, "A boolean must not be considered as a class");
+            equal(JSC.isClass(/xyz/), false, "A regex must not be considered as a class");
+            equal(JSC.isClass(new RegExp), false, "A regex must not be considered as a class");
+            equal(JSC.isClass(function(){}), false, "A function must not be considered as a class");
+            equal(JSC.isClass(new Function()), false, "A function must not be considered as a class");
+
+            equal(JSC.isClass(A), true, "A class definition must be considered as a class");
+            equal(JSC.isClass(new A()), false, "A class instance must not be considered as a class");
+        },
+
+        /**
+         * Test of JSC.isInstance()
+         */
+        isInstance : function() {
+            var A = JSC.Class("A");
+
+            equal(JSC.isInstance(), false, "An undefined value must not be considered as a class instance instance");
+            equal(JSC.isInstance(undefined), false, "An undefined value must not be considered as a class instance instance");
+            equal(JSC.isInstance(null), false, "A null value must not be considered as a class instance");
+            equal(JSC.isInstance({}), false, "An object must not be considered as a class instance");
+            equal(JSC.isInstance(new Object()), false, "An object must not be considered as a class instance");
+            equal(JSC.isInstance([]), false, "An array must not be considered as a class instance");
+            equal(JSC.isInstance(new Array()), false, "An array must not be considered as a class instance");
+            equal(JSC.isInstance("function"), false, "A string must not be considered as a class instance");
+            equal(JSC.isInstance(new String()), false, "A string must not be considered as a class instance");
+            equal(JSC.isInstance(10), false, "A number must not be considered as a class instance");
+            equal(JSC.isInstance(new Number()), false, "A number must not be considered as a class instance");
+            equal(JSC.isInstance(true), false, "A boolean must not be considered as a class instance");
+            equal(JSC.isInstance(new Boolean()), false, "A boolean must not be considered as a class instance");
+            equal(JSC.isInstance(/xyz/), false, "A regex must not be considered as a class instance");
+            equal(JSC.isInstance(new RegExp), false, "A regex must not be considered as a class instance");
+            equal(JSC.isInstance(function(){}), false, "A function must not be considered as a class instance");
+            equal(JSC.isInstance(new Function()), false, "A function must not be considered as a class instance");
+
+            equal(JSC.isInstance(A), false, "A class definition must not be considered as a class instance");
+            equal(JSC.isInstance(new A()), true, "A class instance must be considered as a class instance");
         },
 
         /**
          * Test of JSC.isAbstract()
          */
         isAbstract : function() {
-            equal(JSC.isAbstract(undefined), false, "an undefined value must not be considered as an abstract function");
-            equal(JSC.isAbstract(null), false, "a null value must not be considered as an abstract function");
-            equal(JSC.isAbstract({}), false, "an object must not be considered as an abstract function");
-            equal(JSC.isAbstract(new Object()), false, "an object must not be considered as an abstract function");
-            equal(JSC.isAbstract([]), false, "an array must not be considered as an abstract function");
-            equal(JSC.isAbstract(new Array()), false, "an array must not be considered as an abstract function");
-            equal(JSC.isAbstract("function"), false, "a string must not be considered as an abstract function");
-            equal(JSC.isAbstract(new String()), false, "a string must not be considered as an abstract function");
-            equal(JSC.isAbstract(10), false, "a number must not be considered as an abstract function");
-            equal(JSC.isAbstract(new Number()), false, "a number must not be considered as an abstract function");
-            equal(JSC.isAbstract(true), false, "a boolean must not be considered as an abstract function");
-            equal(JSC.isAbstract(new Boolean()), false, "a boolean must not be considered as an abstract function");
-            equal(JSC.isAbstract(/xyz/), false, "a regex must not be considered as an abstract function");
-            equal(JSC.isAbstract(new RegExp), false, "a regex must not be considered as an abstract function");
-            equal(JSC.isAbstract(function(){}), false, "a standard function must not be considered as an abstract function");
-            equal(JSC.isAbstract(new Function()), false, "a standard function must not be considered as an abstract function");
-            equal(JSC.isAbstract(JSC.Class("A")), false, "a class definition must not be considered as an abstract function");
+            equal(JSC.isAbstract(), false, "An undefined value must not be considered as an abstract function");
+            equal(JSC.isAbstract(undefined), false, "An undefined value must not be considered as an abstract function");
+            equal(JSC.isAbstract(null), false, "A null value must not be considered as an abstract function");
+            equal(JSC.isAbstract({}), false, "An object must not be considered as an abstract function");
+            equal(JSC.isAbstract(new Object()), false, "An object must not be considered as an abstract function");
+            equal(JSC.isAbstract([]), false, "An array must not be considered as an abstract function");
+            equal(JSC.isAbstract(new Array()), false, "An array must not be considered as an abstract function");
+            equal(JSC.isAbstract("function"), false, "A string must not be considered as an abstract function");
+            equal(JSC.isAbstract(new String()), false, "A string must not be considered as an abstract function");
+            equal(JSC.isAbstract(10), false, "A number must not be considered as an abstract function");
+            equal(JSC.isAbstract(new Number()), false, "A number must not be considered as an abstract function");
+            equal(JSC.isAbstract(true), false, "A boolean must not be considered as an abstract function");
+            equal(JSC.isAbstract(new Boolean()), false, "A boolean must not be considered as an abstract function");
+            equal(JSC.isAbstract(/xyz/), false, "A regex must not be considered as an abstract function");
+            equal(JSC.isAbstract(new RegExp), false, "A regex must not be considered as an abstract function");
+            equal(JSC.isAbstract(function(){}), false, "A standard function must not be considered as an abstract function");
+            equal(JSC.isAbstract(new Function()), false, "A standard function must not be considered as an abstract function");
+            equal(JSC.isAbstract(JSC.Class("A")), false, "A class definition must not be considered as an abstract function");
 
-            equal(JSC.isAbstract(JSC.abstractMethod()), true, "an unnamed abstract function must be considered as an abstract function");
-            equal(JSC.isAbstract(JSC.abstractMethod("test")), true, "a named abstract function must be considered as an abstract function");
+            equal(JSC.isAbstract(JSC.abstractMethod()), true, "An unnamed abstract function must be considered as an abstract function");
+            equal(JSC.isAbstract(JSC.abstractMethod("test")), true, "A named abstract function must be considered as an abstract function");
         },
 
         /**
          * Test of JSC.isAttached()
          */
         isAttached : function() {
-            equal(JSC.isAttached(undefined), false, "an undefined value must not be considered as an attached function");
-            equal(JSC.isAttached(null), false, "a null value must not be considered as an attached function");
-            equal(JSC.isAttached({}), false, "an object must not be considered as an attached function");
-            equal(JSC.isAttached(new Object()), false, "an object must not be considered as an attached function");
-            equal(JSC.isAttached([]), false, "an array must not be considered as an attached function");
-            equal(JSC.isAttached(new Array()), false, "an array must not be considered as an attached function");
-            equal(JSC.isAttached("function"), false, "a string must not be considered as an attached function");
-            equal(JSC.isAttached(new String()), false, "a string must not be considered as an attached function");
-            equal(JSC.isAttached(10), false, "a number must not be considered as an attached function");
-            equal(JSC.isAttached(new Number()), false, "a number must not be considered as an attached function");
-            equal(JSC.isAttached(true), false, "a boolean must not be considered as an attached function");
-            equal(JSC.isAttached(new Boolean()), false, "a boolean must not be considered as an attached function");
-            equal(JSC.isAttached(/xyz/), false, "a regex must not be considered as an attached function");
-            equal(JSC.isAttached(new RegExp), false, "a regex must not be considered as an attached function");
-            equal(JSC.isAttached(function(){}), false, "a standard function must not be considered as an attached function");
-            equal(JSC.isAttached(new Function()), false, "a standard function must not be considered as an attached function");
-            equal(JSC.isAttached(JSC.Class("A")), false, "a class definition must not be considered as an attached function");
+            equal(JSC.isAttached(), false, "An undefined value must not be considered as an attached function");
+            equal(JSC.isAttached(undefined), false, "An undefined value must not be considered as an attached function");
+            equal(JSC.isAttached(null), false, "A null value must not be considered as an attached function");
+            equal(JSC.isAttached({}), false, "An object must not be considered as an attached function");
+            equal(JSC.isAttached(new Object()), false, "An object must not be considered as an attached function");
+            equal(JSC.isAttached([]), false, "An array must not be considered as an attached function");
+            equal(JSC.isAttached(new Array()), false, "An array must not be considered as an attached function");
+            equal(JSC.isAttached("function"), false, "A string must not be considered as an attached function");
+            equal(JSC.isAttached(new String()), false, "A string must not be considered as an attached function");
+            equal(JSC.isAttached(10), false, "A number must not be considered as an attached function");
+            equal(JSC.isAttached(new Number()), false, "A number must not be considered as an attached function");
+            equal(JSC.isAttached(true), false, "A boolean must not be considered as an attached function");
+            equal(JSC.isAttached(new Boolean()), false, "A boolean must not be considered as an attached function");
+            equal(JSC.isAttached(/xyz/), false, "A regex must not be considered as an attached function");
+            equal(JSC.isAttached(new RegExp), false, "A regex must not be considered as an attached function");
+            equal(JSC.isAttached(function(){}), false, "A standard function must not be considered as an attached function");
+            equal(JSC.isAttached(new Function()), false, "A standard function must not be considered as an attached function");
+            equal(JSC.isAttached(JSC.Class("A")), false, "A class definition must not be considered as an attached function");
 
-            equal(JSC.isAttached(JSC.attach(function(){}, this)), true, "an unnamed attached function must be considered as an attached function");
-            equal(JSC.isAttached(JSC.attach({test: function(){}}, "test")), true, "a named attached function must be considered as an attached function");
+            equal(JSC.isAttached(JSC.attach(function(){}, this)), true, "An unnamed attached function must be considered as an attached function");
+            equal(JSC.isAttached(JSC.attach({test: function(){}}, "test")), true, "A named attached function must be considered as an attached function");
         },
 
         /**
          * Test of JSC.isInherited()
          */
         isInherited : function() {
-            equal(JSC.isInherited(undefined), false, "an undefined value must not be considered as a function using inheritance");
-            equal(JSC.isInherited(null), false, "a null value must not be considered as a function using inheritance");
-            equal(JSC.isInherited({}), false, "an object must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Object()), false, "an object must not be considered as a function using inheritance");
-            equal(JSC.isInherited([]), false, "an array must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Array()), false, "an array must not be considered as a function using inheritance");
-            equal(JSC.isInherited("function"), false, "a string must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new String()), false, "a string must not be considered as a function using inheritance");
-            equal(JSC.isInherited(10), false, "a number must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Number()), false, "a number must not be considered as a function using inheritance");
-            equal(JSC.isInherited(true), false, "a boolean must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Boolean()), false, "a boolean must not be considered as a function using inheritance");
-            equal(JSC.isInherited(/xyz/), false, "a regex must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new RegExp), false, "a regex must not be considered as a function using inheritance");
-            equal(JSC.isInherited(function(){}), false, "a standard function must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Function()), false, "a standard function must not be considered as a function using inheritance");
-            equal(JSC.isInherited(JSC.Class("A")), false, "a class definition must not be considered as a function using inheritance");
+            equal(JSC.isInherited(), false, "An undefined value must not be considered as a function using inheritance");
+            equal(JSC.isInherited(undefined), false, "An undefined value must not be considered as a function using inheritance");
+            equal(JSC.isInherited(null), false, "A null value must not be considered as a function using inheritance");
+            equal(JSC.isInherited({}), false, "An object must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new Object()), false, "An object must not be considered as a function using inheritance");
+            equal(JSC.isInherited([]), false, "An array must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new Array()), false, "An array must not be considered as a function using inheritance");
+            equal(JSC.isInherited("function"), false, "A string must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new String()), false, "A string must not be considered as a function using inheritance");
+            equal(JSC.isInherited(10), false, "A number must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new Number()), false, "A number must not be considered as a function using inheritance");
+            equal(JSC.isInherited(true), false, "A boolean must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new Boolean()), false, "A boolean must not be considered as a function using inheritance");
+            equal(JSC.isInherited(/xyz/), false, "A regex must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new RegExp), false, "A regex must not be considered as a function using inheritance");
+            equal(JSC.isInherited(function(){}), false, "A standard function must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new Function()), false, "A standard function must not be considered as a function using inheritance");
+            equal(JSC.isInherited(JSC.Class("A")), false, "A class definition must not be considered as a function using inheritance");
 
-            equal(JSC.isInherited(JSC.override(function(){this.inherited();}, function(){})), true, "an overriding function must be considered as a function using inheritance");
+            equal(JSC.isInherited(JSC.override(function(){this.inherited();}, function(){})), true, "An overriding function must be considered as a function using inheritance");
         },
 
         /**
          * Test of JSC.isArray()
          */
         isArray : function() {
-            equal(JSC.isArray(undefined), false, "an undefined value must not be considered as an array");
-            equal(JSC.isArray(null), false, "a null value must not be considered as an array");
-            equal(JSC.isArray({}), false, "an object must not be considered as an array");
-            equal(JSC.isArray(new Object()), false, "an object must not be considered as an array");
-            equal(JSC.isArray(function(){}), false, "a function must not be considered as an array");
-            equal(JSC.isArray(new Function()), false, "a function must not be considered as an array");
-            equal(JSC.isArray(JSC.Class("A")), false, "a class definition must not be considered as an array");
-            equal(JSC.isArray("array"), false, "a string must not be considered as an array");
-            equal(JSC.isArray(new String()), false, "a string must not be considered as an array");
-            equal(JSC.isArray(10), false, "a number must not be considered as an array");
-            equal(JSC.isArray(new Number()), false, "a number must not be considered as an array");
-            equal(JSC.isArray(true), false, "a boolean must not be considered as an array");
-            equal(JSC.isArray(new Boolean()), false, "a boolean must not be considered as an array");
-            equal(JSC.isArray(/xyz/), false, "a regex must not be considered as an array");
-            equal(JSC.isArray(new RegExp), false, "a regex must not be considered as an array");
+            equal(JSC.isArray(), false, "An undefined value must not be considered as an array");
+            equal(JSC.isArray(undefined), false, "An undefined value must not be considered as an array");
+            equal(JSC.isArray(null), false, "A null value must not be considered as an array");
+            equal(JSC.isArray({}), false, "An object must not be considered as an array");
+            equal(JSC.isArray(new Object()), false, "An object must not be considered as an array");
+            equal(JSC.isArray(function(){}), false, "A function must not be considered as an array");
+            equal(JSC.isArray(new Function()), false, "A function must not be considered as an array");
+            equal(JSC.isArray(JSC.Class("A")), false, "A class definition must not be considered as an array");
+            equal(JSC.isArray("Array"), false, "A string must not be considered as an array");
+            equal(JSC.isArray(new String()), false, "A string must not be considered as an array");
+            equal(JSC.isArray(10), false, "A number must not be considered as an array");
+            equal(JSC.isArray(new Number()), false, "A number must not be considered as an array");
+            equal(JSC.isArray(true), false, "A boolean must not be considered as an array");
+            equal(JSC.isArray(new Boolean()), false, "A boolean must not be considered as an array");
+            equal(JSC.isArray(/xyz/), false, "A regex must not be considered as an array");
+            equal(JSC.isArray(new RegExp), false, "A regex must not be considered as an array");
 
-            equal(JSC.isArray([]), true, "an array must be considerer as an array");
-            equal(JSC.isArray(new Array()), true, "an array must be considerer as an array");
+            equal(JSC.isArray([]), true, "An array must be considerer as an array");
+            equal(JSC.isArray(new Array()), true, "An array must be considerer as an array");
         },
 
         /**
          * Test of JSC.isObject()
          */
         isObject : function() {
-            equal(JSC.isObject(undefined), false, "an undefined value must not be considered as an object");
-            equal(JSC.isObject(null), false, "a null value must not be considered as an object");
-            equal(JSC.isObject([]), false, "an array must not be considered as an object");
-            equal(JSC.isObject(new Array()), false, "an array must not be considered as an object");
-            equal(JSC.isObject(function(){}), false, "a function must not be considered as an object");
-            equal(JSC.isObject(new Function()), false, "a function must not be considered as an object");
-            equal(JSC.isObject(JSC.Class("A")), false, "a class definition must not be considered as an object");
-            equal(JSC.isObject("array"), false, "a string must not be considered as an object");
-            equal(JSC.isObject(new String()), false, "a string must not be considered as an object");
-            equal(JSC.isObject(10), false, "a number must not be considered as an object");
-            equal(JSC.isObject(new Number()), false, "a number must not be considered as an object");
-            equal(JSC.isObject(true), false, "a boolean must not be considered as an object");
-            equal(JSC.isObject(new Boolean()), false, "a boolean must not be considered as an object");
-            equal(JSC.isObject(/xyz/), false, "a regex must not be considered as an object");
-            equal(JSC.isObject(new RegExp), false, "a regex must not be considered as an object");
+            equal(JSC.isObject(), false, "An undefined value must not be considered as an object");
+            equal(JSC.isObject(undefined), false, "An undefined value must not be considered as an object");
+            equal(JSC.isObject(null), false, "A null value must not be considered as an object");
+            equal(JSC.isObject([]), false, "An array must not be considered as an object");
+            equal(JSC.isObject(new Array()), false, "An array must not be considered as an object");
+            equal(JSC.isObject(function(){}), false, "A function must not be considered as an object");
+            equal(JSC.isObject(new Function()), false, "A function must not be considered as an object");
+            equal(JSC.isObject(JSC.Class("A")), false, "A class definition must not be considered as an object");
+            equal(JSC.isObject("Array"), false, "A string must not be considered as an object");
+            equal(JSC.isObject(new String()), false, "A string must not be considered as an object");
+            equal(JSC.isObject(10), false, "A number must not be considered as an object");
+            equal(JSC.isObject(new Number()), false, "A number must not be considered as an object");
+            equal(JSC.isObject(true), false, "A boolean must not be considered as an object");
+            equal(JSC.isObject(new Boolean()), false, "A boolean must not be considered as an object");
+            equal(JSC.isObject(/xyz/), false, "A regex must not be considered as an object");
+            equal(JSC.isObject(new RegExp), false, "A regex must not be considered as an object");
 
-            equal(JSC.isObject({}), true, "an object must be considerer as an object");
-            equal(JSC.isObject(new Object()), true, "an object must be considerer as an object");
+            equal(JSC.isObject({}), true, "An object must be considerer as an object");
+            equal(JSC.isObject(new Object()), true, "An object must be considerer as an object");
+        },
+
+        /**
+         * Test of JSC.isEmptyObject()
+         */
+        isEmptyObject : function() {
+            var A = JSC.Class("A");
+
+            equal(JSC.isEmptyObject(), false, "An undefined value must not be considered as an empty object");
+            equal(JSC.isEmptyObject(undefined), false, "An undefined value must not be considered as an empty object");
+            equal(JSC.isEmptyObject(null), false, "A null value must not be considered as an empty object");
+            equal(JSC.isEmptyObject([]), false, "An array must not be considered as an empty object");
+            equal(JSC.isEmptyObject(new Array()), false, "An array must not be considered as an empty object");
+            equal(JSC.isEmptyObject(function(){}), false, "A function must not be considered as an empty object");
+            equal(JSC.isEmptyObject(new Function()), false, "A function must not be considered as an empty object");
+            equal(JSC.isEmptyObject(JSC.Class("A")), false, "A class definition must not be considered as an empty object");
+            equal(JSC.isEmptyObject("Array"), false, "A string must not be considered as an empty object");
+            equal(JSC.isEmptyObject(new String()), false, "A string must not be considered as an empty object");
+            equal(JSC.isEmptyObject(10), false, "A number must not be considered as an empty object");
+            equal(JSC.isEmptyObject(new Number()), false, "A number must not be considered as an empty object");
+            equal(JSC.isEmptyObject(true), false, "A boolean must not be considered as an empty object");
+            equal(JSC.isEmptyObject(new Boolean()), false, "A boolean must not be considered as an empty object");
+            equal(JSC.isEmptyObject(/xyz/), false, "A regex must not be considered as an empty object");
+            equal(JSC.isEmptyObject(new RegExp), false, "A regex must not be considered as an empty object");
+            equal(JSC.isEmptyObject({test: 1}), false, "A filled object must not be considerer as an empty object");
+            equal(JSC.isEmptyObject(A), false, "An empty class must not be considerer as an empty object");
+            equal(JSC.isEmptyObject(new A()), false, "An instance of an empty class must not be considerer as an empty object");
+
+            equal(JSC.isEmptyObject({}), true, "An empty object must be considerer as an empty object");
+            equal(JSC.isEmptyObject(new Object()), true, "An empty object instance must be considerer as an empty object");
         },
 
         /**
          * Test of JSC.isString()
          */
         isString : function() {
-            equal(JSC.isString(undefined), false, "an undefined value must not be considered as a string");
-            equal(JSC.isString(null), false, "a null value must not be considered as a string");
-            equal(JSC.isString({}), false, "an object must not be considered as a string");
-            equal(JSC.isString(new Object()), false, "an object must not be considered as a string");
-            equal(JSC.isString([]), false, "an array must not be considered as a string");
-            equal(JSC.isString(new Array()), false, "an array must not be considered as a string");
-            equal(JSC.isString(function(){}), false, "a function must not be considered as a string");
-            equal(JSC.isString(JSC.Class("A")), false, "a class definition must not be considered as a string");
-            equal(JSC.isString(new Function()), false, "a function must not be considered as a string");
-            equal(JSC.isString(10), false, "a number must not be considered as a string");
-            equal(JSC.isString(new Number()), false, "a number must not be considered as a string");
-            equal(JSC.isString(true), false, "a boolean must not be considered as a string");
-            equal(JSC.isString(new Boolean()), false, "a boolean must not be considered as a string");
-            equal(JSC.isString(/xyz/), false, "a regex must not be considered as a string");
-            equal(JSC.isString(new RegExp()), false, "a regex must not be considered as a string");
+            equal(JSC.isString(), false, "An undefined value must not be considered as a string");
+            equal(JSC.isString(undefined), false, "An undefined value must not be considered as a string");
+            equal(JSC.isString(null), false, "A null value must not be considered as a string");
+            equal(JSC.isString({}), false, "An object must not be considered as a string");
+            equal(JSC.isString(new Object()), false, "An object must not be considered as a string");
+            equal(JSC.isString([]), false, "An array must not be considered as a string");
+            equal(JSC.isString(new Array()), false, "An array must not be considered as a string");
+            equal(JSC.isString(function(){}), false, "A function must not be considered as a string");
+            equal(JSC.isString(JSC.Class("A")), false, "A class definition must not be considered as a string");
+            equal(JSC.isString(new Function()), false, "A function must not be considered as a string");
+            equal(JSC.isString(10), false, "A number must not be considered as a string");
+            equal(JSC.isString(new Number()), false, "A number must not be considered as a string");
+            equal(JSC.isString(true), false, "A boolean must not be considered as a string");
+            equal(JSC.isString(new Boolean()), false, "A boolean must not be considered as a string");
+            equal(JSC.isString(/xyz/), false, "A regex must not be considered as a string");
+            equal(JSC.isString(new RegExp()), false, "A regex must not be considered as a string");
 
-            equal(JSC.isString(""), true, "a string must be considered as a string");
-            equal(JSC.isString(new String()), true, "a string must be considered as a string");
+            equal(JSC.isString(""), true, "A string must be considered as a string");
+            equal(JSC.isString(new String()), true, "A string must be considered as a string");
         },
 
         /**
          * Test of JSC.isBool()
          */
         isBool : function() {
-            equal(JSC.isBool(undefined), false, "an undefined value must not be considered as a boolean");
-            equal(JSC.isBool(null), false, "a null value must not be considered as a boolean");
-            equal(JSC.isBool({}), false, "an object must not be considered as a boolean");
-            equal(JSC.isBool(new Object()), false, "an object must not be considered as a boolean");
-            equal(JSC.isBool([]), false, "an array must not be considered as a boolean");
-            equal(JSC.isBool(new Array()), false, "an array must not be considered as a boolean");
-            equal(JSC.isBool(function(){}), false, "a function must not be considered as a boolean");
-            equal(JSC.isBool(JSC.Class("A")), false, "a class definition must not be considered as a boolean");
-            equal(JSC.isBool(new Function()), false, "a function must not be considered as a boolean");
-            equal(JSC.isBool(10), false, "a number must not be considered as a boolean");
-            equal(JSC.isBool(new Number()), false, "a number must not be considered as a boolean");
-            equal(JSC.isBool("true"), false, "a string must not be considered as a boolean");
-            equal(JSC.isBool(new String()), false, "a boolean must not be considered as a boolean");
-            equal(JSC.isBool(/xyz/), false, "a regex must not be considered as a boolean");
-            equal(JSC.isBool(new RegExp()), false, "a regex must not be considered as a boolean");
+            equal(JSC.isBool(), false, "An undefined value must not be considered as a boolean");
+            equal(JSC.isBool(undefined), false, "An undefined value must not be considered as a boolean");
+            equal(JSC.isBool(null), false, "A null value must not be considered as a boolean");
+            equal(JSC.isBool({}), false, "An object must not be considered as a boolean");
+            equal(JSC.isBool(new Object()), false, "An object must not be considered as a boolean");
+            equal(JSC.isBool([]), false, "An array must not be considered as a boolean");
+            equal(JSC.isBool(new Array()), false, "An array must not be considered as a boolean");
+            equal(JSC.isBool(function(){}), false, "A function must not be considered as a boolean");
+            equal(JSC.isBool(JSC.Class("A")), false, "A class definition must not be considered as a boolean");
+            equal(JSC.isBool(new Function()), false, "A function must not be considered as a boolean");
+            equal(JSC.isBool(10), false, "A number must not be considered as a boolean");
+            equal(JSC.isBool(new Number()), false, "A number must not be considered as a boolean");
+            equal(JSC.isBool("true"), false, "A string must not be considered as a boolean");
+            equal(JSC.isBool(new String()), false, "A boolean must not be considered as a boolean");
+            equal(JSC.isBool(/xyz/), false, "A regex must not be considered as a boolean");
+            equal(JSC.isBool(new RegExp()), false, "A regex must not be considered as a boolean");
 
-            equal(JSC.isBool(true), true, "a boolean must be considered as a boolean");
-            equal(JSC.isBool(false), true, "a boolean must be considered as a boolean");
-            equal(JSC.isBool(new Boolean()), true, "a boolean must be considered as a boolean");
+            equal(JSC.isBool(true), true, "A boolean must be considered as a boolean");
+            equal(JSC.isBool(false), true, "A boolean must be considered as a boolean");
+            equal(JSC.isBool(new Boolean()), true, "A boolean must be considered as a boolean");
         },
 
         /**
          * Test of JSC.isNumeric()
          */
         isNumeric : function() {
-            equal(JSC.isNumeric(undefined), false, "an undefined value must not be considered as a numeric value");
-            equal(JSC.isNumeric(null), false, "a null value must not be considered as a numeric value");
-            equal(JSC.isNumeric({}), false, "an object must not be considered as a numeric value");
-            equal(JSC.isNumeric(new Object()), false, "an object must not be considered as a numeric value");
-            equal(JSC.isNumeric([]), false, "an array must not be considered as a numeric value");
-            equal(JSC.isNumeric(new Array()), false, "an array must not be considered as a numeric value");
-            equal(JSC.isNumeric(function(){}), false, "a function must not be considered as a numeric value");
-            equal(JSC.isNumeric(JSC.Class("A")), false, "a class definition must not be considered as a numeric value");
-            equal(JSC.isNumeric(new Function()), false, "a function must not be considered as a numeric value");
-            equal(JSC.isNumeric("ddd"), false, "a string must not be considered as a numeric value");
-            equal(JSC.isNumeric(new String()), false, "a string must not be considered as a numeric value");
-            equal(JSC.isNumeric(true), false, "a boolean must not be considered as a numeric value");
-            equal(JSC.isNumeric(new Boolean()), false, "a boolean must not be considered as a numeric value");
-            equal(JSC.isNumeric(/xyz/), false, "a regex must not be considered as a numeric value");
-            equal(JSC.isNumeric(new RegExp()), false, "a regex must not be considered as a numeric value");
+            equal(JSC.isNumeric(), false, "An undefined value must not be considered as a numeric value");
+            equal(JSC.isNumeric(undefined), false, "An undefined value must not be considered as a numeric value");
+            equal(JSC.isNumeric(null), false, "A null value must not be considered as a numeric value");
+            equal(JSC.isNumeric({}), false, "An object must not be considered as a numeric value");
+            equal(JSC.isNumeric(new Object()), false, "An object must not be considered as a numeric value");
+            equal(JSC.isNumeric([]), false, "An array must not be considered as a numeric value");
+            equal(JSC.isNumeric(new Array()), false, "An array must not be considered as a numeric value");
+            equal(JSC.isNumeric(function(){}), false, "A function must not be considered as a numeric value");
+            equal(JSC.isNumeric(JSC.Class("A")), false, "A class definition must not be considered as a numeric value");
+            equal(JSC.isNumeric(new Function()), false, "A function must not be considered as a numeric value");
+            equal(JSC.isNumeric("ddd"), false, "A string must not be considered as a numeric value");
+            equal(JSC.isNumeric(new String()), false, "A string must not be considered as a numeric value");
+            equal(JSC.isNumeric(true), false, "A boolean must not be considered as a numeric value");
+            equal(JSC.isNumeric(new Boolean()), false, "A boolean must not be considered as a numeric value");
+            equal(JSC.isNumeric(/xyz/), false, "A regex must not be considered as a numeric value");
+            equal(JSC.isNumeric(new RegExp()), false, "A regex must not be considered as a numeric value");
 
-            equal(JSC.isNumeric("10"), true, "a string containing numbers must be considered as a numeric value");
-            equal(JSC.isNumeric("1234.5678"), true, "a string containing decimal numbers must be considered as a numeric value");
-            equal(JSC.isNumeric("1234.5678e124"), true, "a string containing decimal numbers must be considered as a numeric value");
-            equal(JSC.isNumeric("1234ttt5678e124"), false, "a string containing numbers and other chars must not be considered as a numeric value");
-            equal(JSC.isNumeric(10), true, "a number must be considered as a numeric value");
+            equal(JSC.isNumeric("10"), true, "A string containing numbers must be considered as a numeric value");
+            equal(JSC.isNumeric("1234.5678"), true, "A string containing decimal numbers must be considered as a numeric value");
+            equal(JSC.isNumeric("1234.5678e124"), true, "A string containing decimal numbers must be considered as a numeric value");
+            equal(JSC.isNumeric("1234ttt5678e124"), false, "A string containing numbers and other chars must not be considered as a numeric value");
+            equal(JSC.isNumeric(10), true, "A number must be considered as a numeric value");
             equal(JSC.isNumeric(Math.PI), true, "Math.PI must be considered as a numeric value");
-            equal(JSC.isNumeric(new Number()), true, "a number object must be considered as a numeric value");
+            equal(JSC.isNumeric(new Number()), true, "A number object must be considered as a numeric value");
         },
 
         /**
@@ -432,21 +514,33 @@
          * Test of JSC.globalize()
          */
         globalize : function() {
-            var exportable = "exported";
+            var exportable = "exported", throwed = false, ret = true;
+
+            try {
+                ret = JSC.globalize();
+            } catch(e) {
+                throwed = true;
+            }
+            equal(ret, undefined, "JSC.globalize() must return nothing when no parameter is given");
+            ok(!throwed, "Call of JSC.globalize() without parameter must not throw an exception");
+
             ok("undefined" == typeof myTestExport, "Not exported variable must not exist in global context !");
 
-            JSC.globalize("myTestExport", exportable);
+            ret = JSC.globalize("myTestExport", exportable);
+            equal(ret, exportable, "JSC.globalize() must return the given value");
             ok("undefined" != typeof myTestExport, "Exported variable must exist in global context !");
             equal(myTestExport, exportable, "Exported variable must equal source value !");
 
             exportable = {};
             exportable.className = "classExport";
-            JSC.globalize(exportable);
+            ret = JSC.globalize(exportable);
+            equal(ret, exportable, "JSC.globalize() must return the given value");
             ok("undefined" != typeof classExport, "Exported class must exist in global context !");
             equal(classExport, exportable, "Exported class must equal source value !");
 
             exportable = {};
-            JSC.globalize(true, exportable);
+            ret = JSC.globalize(true, exportable);
+            equal(ret, exportable, "JSC.globalize() must return the given value");
             ok("undefined" != typeof JSC.global("true"), "No string parameter must be converted to string when two parameters are given !");
             equal(JSC.global("true"), exportable, "Exported value must equal source value !");
         },
@@ -455,12 +549,23 @@
          * Test of JSC.global()
          */
         global : function() {
-            var globalized = "globalized";
+            var globalized = "globalized", throwed = false, ret = true;
+
+            try {
+                ret = JSC.global();
+            } catch(e) {
+                throwed = true;
+            }
+            equal(ret, undefined, "JSC.global() must return nothing when no parameter is given");
+            ok(!throwed, "Call of JSC.global() without parameter must not throw an exception");
+
             ok("undefined" == typeof JSC.global("myTestGlobal"), "Local variable must not exist in global context !");
 
             JSC.globalize("myTestGlobal", globalized);
-            ok("undefined" != typeof JSC.global("myTestGlobal"), "Global variable must exist in global context !");
-            equal(JSC.global("myTestGlobal"), globalized, "Global variable must equal source value !");
+            ret = JSC.global("myTestGlobal");
+            ok("undefined" != typeof ret, "Global variable must exist in global context !");
+            equal(ret, globalized, "Global variable must equal source value !");
+            equal(JSC.global("myTestGlobal"), ret, "Each call of JSC.global() must return same value when same name is used !");
         },
 
         /**
@@ -490,29 +595,29 @@
             var o = {}, o1;
 
             o1 = JSC.merge();
-            ok("object" == typeof(o1), "merging of no object must at least produce an object");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of void object");
+            ok("object" === typeof o1 && JSC.isEmptyObject(o1), "Merging of no object must at least produce an empty object");
+            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
 
             o1 = JSC.merge(o);
-            equal(o, o1, "merge of a single object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of void object");
+            equal(o, o1, "Merge of a single object must return it at least");
+            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
 
             o1 = JSC.merge(o, o);
-            equal(o, o1, "merge of a single object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of void object");
+            equal(o, o1, "Merge of a single object must return it at least");
+            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
 
             o1 = JSC.merge(true);
-            ok("object" == typeof(o1), "merging of no object but a boolean must at least produce an object");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of void object");
+            ok("object" == typeof(o1), "Merging of no object but a boolean must at least produce an object");
+            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
 
             o1 = JSC.merge(o, {});
-            equal(o, o1, "merge of an object with another void object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of void object");
+            equal(o, o1, "Merge of an object with another empty object must return it at least");
+            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
 
             o.a = false;
             o1 = JSC.merge(o, {});
-            equal(o, o1, "merge of an object with another void object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({a:false}), "Merge result of void object");
+            equal(o, o1, "Merge of an object with another empty object must return it at least");
+            equal(JSC.toString(o1), JSC.toString({a:false}), "Merge result of empty object");
 
             o1 = JSC.merge(o, {
                 a : true,
@@ -520,7 +625,7 @@
                     a : false
                 }
             });
-            equal(o, o1, "merge of an object with another void object must return it at least");
+            equal(o, o1, "Merge of an object with another empty object must return it at least");
             equal(JSC.toString(o1), JSC.toString({
                 a : true,
                 b : {
@@ -535,7 +640,7 @@
                 },
                 c : "tests"
             });
-            equal(o, o1, "merge must return destination object");
+            equal(o, o1, "Merge must return destination object");
             equal(JSC.toString(o1), JSC.toString({
                 a : 10,
                 b : {
@@ -549,7 +654,7 @@
                     b : 4
                 }
             });
-            equal(o, o1, "merge must return destination object");
+            equal(o, o1, "Merge must return destination object");
             equal(JSC.toString(o1), JSC.toString({
                 a : 10,
                 b : {
@@ -568,7 +673,7 @@
                     c : true
                 }
             });
-            equal(o, o1, "merge must return destination object");
+            equal(o, o1, "Merge must return destination object");
             equal(JSC.toString(o1), JSC.toString({
                 a : 10,
                 b : {
@@ -590,7 +695,7 @@
                     a : 4
                 }
             });
-            equal(o, o1, "merge must return destination object");
+            equal(o, o1, "Merge must return destination object");
             equal(JSC.toString(o1), JSC.toString({
                 a : 10,
                 b : {
@@ -606,10 +711,107 @@
         },
 
         /**
+         * Test of JSC.each()
+         */
+        each : function() {
+            var o1 = {}, o2 = {}, o3, a1 = [], a2 = [], a3, throwed, count, value, fn = function(p1, p2) {
+                value = "" + value + this.value + p1 + p2;
+                count ++;
+            };
+
+            throwed = false;
+            try {
+                o3 = JSC.each();
+                equal(o3, undefined, "Undefined value must be returned when no parameters is used");
+
+                o3 = JSC.each(o1);
+                equal(o1, o3, "Returned object must be equal to given one");
+
+                o3 = JSC.each(o1, 10);
+                equal(o1, o3, "Returned object must be equal to given one");
+
+                o3 = JSC.each(o1, true);
+                equal(o1, o3, "Returned object must be equal to given one");
+
+                o3 = JSC.each(o1, {});
+                equal(o1, o3, "Returned object must be equal to given one");
+
+                o3 = JSC.each(o1, []);
+                equal(o1, o3, "Returned object must be equal to given one");
+            } catch(e) {
+                throwed = true;
+            }
+            ok(!throwed, "No error must be throwed when no, or wrong, parameters is given")
+
+            /**/
+            o1.it1 = 4;
+            o1.it2 = "t";
+            o1.it3 = true;
+
+            count = 0;
+            o3 = JSC.each(o1, function(i, item, src){
+                equal(item, this, "Processed property but be equal to this");
+                equal(src, o1, "Declared source object must be equal to iterated object");
+                o2[i] = item;
+                count ++;
+            });
+
+            equal(o1, o3, "Returned object must be equal to given one");
+            equal(count, 3, "Function must be called for each property of the object");
+            equal(JSC.toString(o1), JSC.toString(o2), "Result of walking in object");
+
+            /**/
+            a1.push("dd");
+            a1.push(true);
+            a1.push(45);
+            a1.push({});
+
+            count = 0;
+            a3 = JSC.each(a1, function(i, item, src){
+                equal(item, this, "Processed item but be equal to this");
+                equal(src, a1, "Declared source array must be equal to iterated array");
+                a2[i] = item;
+                count ++;
+            });
+
+            equal(a1, a3, "Returned array must be equal to given one");
+            equal(count, a1.length, "Function must be called for each item of the array");
+            equal(a2.length, a1.length, "Result array must have same length of walked array");
+            equal(JSC.toString(a1), JSC.toString(a2), "Result of walking in array");
+
+            /**/
+            o1.it1 = {value: 4, action: fn};
+            o1.it2 = {value: "t", action: fn};
+            o1.it3 = {value: 10, action: fn};
+
+            count = 0;
+            value = "";
+            o3 = JSC.each(o1, "action", "b", ",");
+
+            equal(o1, o3, "Returned object must be equal to given one");
+            equal(count, 3, "Function must be called for each property of the object");
+            equal(value, "4b,tb,10b,", "Result of walking in object");
+
+            /**/
+            a1 = [];
+            a1.push({value: 4, action: fn});
+            a1.push({value: "t", action: fn});
+            a1.push({value: 10, action: fn});
+
+            count = 0;
+            value = "";
+            a3 = JSC.each(a1, "action", 7, ";");
+
+            equal(a1, a3, "Returned array must be equal to given one");
+            equal(count, a1.length, "Function must be called for each item of the array");
+            equal(value, "47;t7;107;", "Result of walking in array");
+        },
+
+        /**
          * Test of JSC.owned()
          */
         owned : function() {
-            var A, B, a, b, o;
+            var A, B, a, b, o, throwed = false;
 
             A = new Function();
             A.prototype.a = true;
@@ -624,27 +826,35 @@
             b = new B();
             b.bb = true;
 
-            ok("undefined" != typeof a.a, "defined property must exist");
-            ok("undefined" == typeof a.b, "not defined property must not exist");
-            ok("undefined" != typeof a.aa, "added property must exist");
-            ok("undefined" == typeof a.bb, "not added property must not exist");
+            ok("undefined" != typeof a.a, "Defined property must exist");
+            ok("undefined" == typeof a.b, "Not defined property must not exist");
+            ok("undefined" != typeof a.aa, "Added property must exist");
+            ok("undefined" == typeof a.bb, "Not added property must not exist");
+
+            try {
+                o = JSC.owned();
+            } catch(e) {
+                throwed = true;
+            }
+            ok("object" === typeof o && JSC.isEmptyObject(o), "JSC.owned() must return an empty object when no parameter is given");
+            ok(!throwed, "Call of JSC.owned() without parameter must not throw an exception");
 
             o = JSC.owned(a);
-            ok("undefined" == typeof o.a, "defined property must not be tagged as owned");
-            ok("undefined" != typeof o.aa, "added property must be tagged as owned");
-            ok("undefined" == typeof o.b, "not defined property must not be tagged as owned");
-            ok("undefined" == typeof o.bb, "not added property must not be tagged as owned");
+            ok("undefined" == typeof o.a, "Defined property must not be tagged as owned");
+            ok("undefined" != typeof o.aa, "Added property must be tagged as owned");
+            ok("undefined" == typeof o.b, "Not defined property must not be tagged as owned");
+            ok("undefined" == typeof o.bb, "Not added property must not be tagged as owned");
 
-            ok("undefined" != typeof b.a, "herited property must exist");
-            ok("undefined" != typeof b.b, "defined property must exist");
-            ok("undefined" == typeof b.aa, "not added property must not exist");
-            ok("undefined" != typeof b.bb, "added property must exist");
+            ok("undefined" != typeof b.a, "Herited property must exist");
+            ok("undefined" != typeof b.b, "Defined property must exist");
+            ok("undefined" == typeof b.aa, "Not added property must not exist");
+            ok("undefined" != typeof b.bb, "Added property must exist");
 
             o = JSC.owned(b);
-            ok("undefined" == typeof o.a, "defined property must not be tagged as owned");
-            ok("undefined" == typeof o.aa, "not added property must be not tagged as owned");
-            ok("undefined" == typeof o.b, "defined property must not be tagged as owned");
-            ok("undefined" != typeof o.bb, "added property must be tagged as owned");
+            ok("undefined" == typeof o.a, "Defined property must not be tagged as owned");
+            ok("undefined" == typeof o.aa, "Not added property must be not tagged as owned");
+            ok("undefined" == typeof o.b, "Defined property must not be tagged as owned");
+            ok("undefined" != typeof o.bb, "Added property must be tagged as owned");
         },
 
         /**
@@ -657,76 +867,95 @@
 
             o1.value = "1";
             o1.fn = fn;
-            equal(o1.fn.guid, undefined, "no GUID on method");
+            equal(o1.fn.guid, undefined, "No GUID on method");
 
             o2.value = "2";
             o2.fn = JSC.attach(fn, o1);
             ok(JSC.isAttached(o2.fn), "Flag must be set to tell the method is context attached");
-            ok(o1.fn.guid, "original method must have a GUID");
-            ok(o2.fn.guid, "proxy method must have a GUID");
-            equal(o1.fn.guid, o2.fn.guid, "GUIS of proxy and original methods must be equals");
-            notEqual(o1.fn, o2.fn, "proxy and original methods must not be equals");
+            ok(o1.fn.guid, "Original method must have a GUID");
+            ok(o2.fn.guid, "Proxy method must have a GUID");
+            equal(o1.fn.guid, o2.fn.guid, "GUID of proxy and original methods must be equals");
+            notEqual(o1.fn, o2.fn, "Proxy and original methods must not be equals");
 
             o3.value = "3";
             o3.fn = JSC.attach(o1, "fn");
             ok(JSC.isAttached(o3.fn), "Flag must be set to tell the method is context attached");
-            ok(o3.fn.guid, "proxy method must have a GUID");
-            equal(o1.fn.guid, o3.fn.guid, "GUIS of proxy and original methods must be equals");
-            notEqual(o1.fn, o3.fn, "proxy and original methods must not be equals");
+            ok(o3.fn.guid, "Proxy method must have a GUID");
+            equal(o1.fn.guid, o3.fn.guid, "GUID of proxy and original methods must be equals");
+            notEqual(o1.fn, o3.fn, "Proxy and original methods must not be equals");
 
             dummy = JSC.attach(undefined, o1);
-            ok(dummy, "proxy method must have given, even if no one was given");
-            ok(dummy.guid, "proxy method must have a GUID");
+            ok(dummy, "Proxy method must have given, even if no one was given");
+            ok(dummy.guid, "Proxy method must have a GUID");
 
             dummy = JSC.attach(undefined, undefined);
-            ok(dummy, "proxy method must have given, even if no one was given");
-            ok(dummy.guid, "proxy method must have a GUID");
+            ok(dummy, "Proxy method must have given, even if no one was given");
+            ok(dummy.guid, "Proxy method must have a GUID");
+
+            dummy = JSC.attach();
+            ok(dummy, "Proxy method must have given, even if no one was given");
+            ok(dummy.guid, "Proxy method must have a GUID");
 
             dummy = JSC.attach(o1, "undefined");
-            ok(dummy, "proxy method must have given, even if no one was given");
-            ok(dummy.guid, "proxy method must have a GUID");
+            ok(dummy, "Proxy method must have given, even if no one was given");
+            ok(dummy.guid, "Proxy method must have a GUID");
 
             dummy = JSC.attach(undefined, "undefined");
-            ok(dummy, "proxy method must have given, even if no one was given");
-            ok(dummy.guid, "proxy method must have a GUID");
+            ok(dummy, "Proxy method must have given, even if no one was given");
+            ok(dummy.guid, "Proxy method must have a GUID");
 
-            equal(o1.fn.guid, o3.fn.guid, "GUIS of proxy and original methods must be equals");
-            notEqual(o1.fn, o3.fn, "proxy and original methods must not be equals");
+            equal(o1.fn.guid, o3.fn.guid, "GUID of proxy and original methods must be equals");
+            notEqual(o1.fn, o3.fn, "Proxy and original methods must not be equals");
 
-            equal(o1.value, "1", "initial o1 value");
+            equal(o1.value, "1", "Initial o1 value");
             o1.fn("test");
-            equal(o1.value, "test", "o1 value must be affected by method call");
+            equal(o1.value, "test", "Value of o1 must be affected by method call");
 
-            equal(o2.value, "2", "initial o2 value");
+            equal(o2.value, "2", "Initial o2 value");
             o2.fn("hello");
-            equal(o1.value, "hello", "o1 value must be affected by method call");
-            equal(o2.value, "2", "o2 value must not be affected by method call");
+            equal(o1.value, "hello", "Value of o1 must be affected by method call");
+            equal(o2.value, "2", "Value of o2 must not be affected by method call");
 
-            equal(o3.value, "3", "initial o3 value");
+            equal(o3.value, "3", "Initial o3 value");
             o3.fn("hi");
-            equal(o1.value, "hi", "o1 value must be affected by method call");
-            equal(o2.value, "2", "o2 value must not be affected by method call");
-            equal(o3.value, "3", "o3 value must not be affected by method call");
+            equal(o1.value, "hi", "Value of o1 must be affected by method call");
+            equal(o2.value, "2", "Value of o2 must not be affected by method call");
+            equal(o3.value, "3", "Value of o3 must not be affected by method call");
         },
 
         /**
          * Test of JSC.innerAttach()
          */
         innerAttach : function() {
-            var fn, o = {};
+            var fn, throwed = false;
 
-            fn = JSC.innerAttach("tag");
-            notEqual(fn, JSC.noop, "attached function must not be equal to noop");
-            notEqual(fn, JSC.tag, "attached function must not be equal to original one");
-            equal(fn.guid, JSC.tag.guid, "attached function must have same id that original one");
-            equal(fn.guid, JSC.innerAttach("tag").guid, "each attached function must have same id");
-            equal(fn, JSC.innerAttach("tag"), "each attached function must be equal");
-            notEqual(fn, JSC.innerAttach("tag", true), "when rewriting is required, attached function must not be equal to old one");
+            try {
+                fn = JSC.innerAttach();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(JSC.isFunction(fn), "JSC.innerAttach() must return a function even when no parameter is given");
+            ok(!throwed, "Call of JSC.innerAttach() without parameter must not throw an exception");
 
-            equal(o.guid, undefined, "value before call");
-            equal(fn(o), o.guid, "value after call");
-            notEqual(o.guid, undefined, "value after call");
-            ok("number" === typeof o.guid, "type of value after call");
+            JSC.myValue = "";
+            JSC.myFunction = function(){
+                this.myValue = "myFunction";
+            }
+
+            fn = JSC.innerAttach("myFunction");
+            notEqual(fn, JSC.noop, "Attached function must not be equal to noop");
+            notEqual(fn, JSC.myFunction, "Attached function must not be equal to original one");
+            equal(fn.guid, JSC.myFunction.guid, "Attached function must have same id that original one");
+            equal(fn.guid, JSC.innerAttach("myFunction").guid, "Each attached function must have same id");
+            equal(fn, JSC.innerAttach("myFunction"), "Each attached function must be equal");
+            notEqual(fn, JSC.innerAttach("myFunction", true), "When rewriting is required, attached function must not be equal to old one");
+
+            equal(JSC.myValue, "", "Value before call");
+            fn();
+            equal(JSC.myValue, "myFunction", "Value after call");
+
+            delete JSC.myValue;
+            delete JSC.myFunction;
         },
 
         /**
@@ -736,9 +965,9 @@
             var fn, name = "test", o = {}, throwed;
 
             fn = JSC.abstractMethod();
-            ok(JSC.isFunction(fn), "abstract method must be a function");
-            raises(fn, "calling of abstract method must throw an exception");
-            ok(JSC.isAbstract(fn), "abstract method must be tagged as abstract");
+            ok(JSC.isFunction(fn), "Abstract method must be a function");
+            raises(fn, "Calling of abstract method must throw an exception");
+            ok(JSC.isAbstract(fn), "Abstract method must be tagged as abstract");
 
             o.fn = fn;
             throwed = false;
@@ -752,12 +981,12 @@
                     ok(false, "Throwed error is not an instance of JSCError !");
                 }
             }
-            ok(throwed, "calling of named abstract method in object context must throw an exception");
+            ok(throwed, "Calling of named abstract method in object context must throw an exception");
 
             fn = JSC.abstractMethod(name);
-            ok(JSC.isFunction(fn), "named abstract method must be a function");
-            raises(fn, new RegExp(name), "calling of named abstract method must throw an exception");
-            ok(JSC.isAbstract(fn), "named abstract method must be tagged as abstract");
+            ok(JSC.isFunction(fn), "Named abstract method must be a function");
+            raises(fn, "Calling of named abstract method must throw an exception");
+            ok(JSC.isAbstract(fn), "Named abstract method must be tagged as abstract");
 
             o.fn = fn;
             throwed = false;
@@ -771,7 +1000,7 @@
                     ok(false, "Throwed error is not an instance of JSCError !");
                 }
             }
-            ok(throwed, "calling of named abstract method in object context must throw an exception");
+            ok(throwed, "Calling of named abstract method in object context must throw an exception");
 
             o.className = "A";
             throwed = false;
@@ -785,7 +1014,7 @@
                     ok(false, "Throwed error is not an instance of JSCError !");
                 }
             }
-            ok(throwed, "calling of named abstract method in object context must throw an exception");
+            ok(throwed, "Calling of named abstract method in object context must throw an exception");
         },
 
         /**
@@ -796,21 +1025,21 @@
                 value = p + "1";
             };
 
-            equal(JSC.override(), undefined, "overriding for nothing must return nothing");
-            equal(JSC.override(fn), fn, "when no overriding, original method must be returned");
-            equal(JSC.override(fn, fn), fn, "override of a method by itself must not produce an overriding method");
-            equal(JSC.override(value = ""), value, "overriding with a string value must return the value unaltered");
-            equal(JSC.override(value = new String()), value, "overriding with a string value must return the value unaltered");
-            equal(JSC.override(value = true), value, "overriding with a boolean value must return the value unaltered");
-            equal(JSC.override(value = new Boolean()), value, "overriding with a boolean value must return the value unaltered");
-            equal(JSC.override(value = {}), value, "overriding with an objet value must return the value unaltered");
-            equal(JSC.override(value = new Object()), value, "overriding with an objet value must return the value unaltered");
-            equal(JSC.override(value = []), value, "overriding with an array value must return the value unaltered");
-            equal(JSC.override(value = new Array()), value, "overriding with an array value must return the value unaltered");
-            equal(JSC.override(value = /xyz/), value, "overriding with a RegExp value must return the value unaltered");
-            equal(JSC.override(value = new RegExp()), value, "overriding with a RegExp value must return the value unaltered");
-            equal(JSC.override(value = 10), value, "overriding with a number value must return the value unaltered");
-            equal(JSC.override(value = new Number()), value, "overriding with a number value must return the value unaltered");
+            equal(JSC.override(), undefined, "Overriding for nothing must return nothing");
+            equal(JSC.override(fn), fn, "When no overriding, original method must be returned");
+            equal(JSC.override(fn, fn), fn, "Override of a method by itself must not produce an overriding method");
+            equal(JSC.override(value = ""), value, "Overriding with a string value must return the value unaltered");
+            equal(JSC.override(value = new String()), value, "Overriding with a string value must return the value unaltered");
+            equal(JSC.override(value = true), value, "Overriding with a boolean value must return the value unaltered");
+            equal(JSC.override(value = new Boolean()), value, "Overriding with a boolean value must return the value unaltered");
+            equal(JSC.override(value = {}), value, "Overriding with an objet value must return the value unaltered");
+            equal(JSC.override(value = new Object()), value, "Overriding with an objet value must return the value unaltered");
+            equal(JSC.override(value = []), value, "Overriding with an array value must return the value unaltered");
+            equal(JSC.override(value = new Array()), value, "Overriding with an array value must return the value unaltered");
+            equal(JSC.override(value = /xyz/), value, "Overriding with a RegExp value must return the value unaltered");
+            equal(JSC.override(value = new RegExp()), value, "Overriding with a RegExp value must return the value unaltered");
+            equal(JSC.override(value = 10), value, "Overriding with a number value must return the value unaltered");
+            equal(JSC.override(value = new Number()), value, "Overriding with a number value must return the value unaltered");
 
             value = "";
             o1.fn = JSC.override(fn);
@@ -827,39 +1056,39 @@
             }, o3.fn);
 
             value = "";
-            equal(value, "", "value before call of initial method");
-            equal(o1.fn, fn, "initial method must not be altered");
-            ok(!JSC.isInherited(o1.fn), "method must not be tagged as overriding");
-            ok(!reOverride.test(o1.fn), "initial method must not call inherited");
+            equal(value, "", "Value before call of initial method");
+            equal(o1.fn, fn, "Initial method must not be altered");
+            ok(!JSC.isInherited(o1.fn), "Method must not be tagged as overriding");
+            ok(!reOverride.test(o1.fn), "Initial method must not call inherited");
             o1.fn("test");
-            equal(value, "test1", "call of initial method");
+            equal(value, "test1", "Call of initial method");
 
             value = "";
-            equal(value, "", "value before call of 2 levels method");
+            equal(value, "", "Value before call of 2 levels method");
             notEqual(o2.fn, fn, "2 levels method must be altered");
-            ok(JSC.isInherited(o2.fn), "method must be tagged as overriding");
+            ok(JSC.isInherited(o2.fn), "Method must be tagged as overriding");
             ok(reOverride.test(o2.fn), "2 levels method must call inherited");
             o2.fn("try");
-            equal(value, "try12", "call of 2 levels method");
+            equal(value, "try12", "Call of 2 levels method");
 
             value = "";
-            equal(value, "", "value before call of 3 levels method");
+            equal(value, "", "Value before call of 3 levels method");
             notEqual(o3.fn, fn, "3 levels method must be altered");
-            ok(JSC.isInherited(o3.fn), "method must be tagged as overriding");
+            ok(JSC.isInherited(o3.fn), "Method must be tagged as overriding");
             ok(reOverride.test(o3.fn), "3 levels method must call inherited");
             o3.fn("hello");
-            equal(value, "hello123", "call of 3 levels method");
+            equal(value, "hello123", "Call of 3 levels method");
 
             value = "";
-            equal(value, "", "value before call of 4 levels method");
+            equal(value, "", "Value before call of 4 levels method");
             notEqual(o4.fn, fn, "4 levels method must be altered");
-            ok(!JSC.isInherited(o4.fn), "method must not be tagged as overriding");
+            ok(!JSC.isInherited(o4.fn), "Method must not be tagged as overriding");
             ok(!reOverride.test(o4.fn), "4 levels method must not call inherited");
             o4.fn("final");
-            equal(value, "final4", "call of 4 levels method");
+            equal(value, "final4", "Call of 4 levels method");
 
             fn = function() {this.inherited();}
-            equal(JSC.override(fn, fn), fn, "override of a method by itself must not produce an overriding method, even if inheritance is invoked !");
+            equal(JSC.override(fn, fn), fn, "Override of a method by itself must not produce an overriding method, even if inheritance is invoked !");
         },
 
         /**
@@ -870,19 +1099,19 @@
 
             throwed = false
             try {
-                equal(JSC.extend(), undefined, "call of extend with no parameters must return undefined");
+                equal(JSC.extend(), undefined, "Call of extend with no parameters must return undefined");
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "call of extend with no parameters must not throw error");
+            ok(!throwed, "Call of extend with no parameters must not throw error");
 
             throwed = false
             try {
-                equal(JSC.extend("Class"), "Class", "call of extend with no class must return given value");
+                equal(JSC.extend("Class"), "Class", "Call of extend with no class must return given value");
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "call of extend with no class must not throw error");
+            ok(!throwed, "Call of extend with no class must not throw error");
 
             A = new Function();
             A.prototype.a = true;
@@ -892,11 +1121,11 @@
 
             throwed = false
             try {
-                equal(JSC.extend(A), A, "call of extend with only a class must return given class");
+                equal(JSC.extend(A), A, "Call of extend with only a class must return given class");
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "call of extend with only a class must not throw error");
+            ok(!throwed, "Call of extend with only a class must not throw error");
 
 
             B = new Function();
@@ -912,22 +1141,22 @@
             }, A);
             ok(JSC.isFunction(b), "Class.extend() must return the class");
             equal(b, B, "Resturn of Class.extend() must be equal to the class");
-            ok(JSC.isInherited(B.prototype.f), "method must be tagged as overriding");
+            ok(JSC.isInherited(B.prototype.f), "Method must be tagged as overriding");
 
             value = "";
             a = new A();
-            equal(value, "", "initial value after 'A' is instantiated");
+            equal(value, "", "Initial value after 'A' is instantiated");
             a.f();
-            equal(value, "A", "altered value after call of 'A.f()'");
+            equal(value, "A", "Altered value after call of 'A.f()'");
 
             value = "";
             b = new B();
-            equal(b.a, false, "value of 'b.a'");
-            equal(b.b, true, "value of 'b.b'");
-            equal(b.c, "", "value of 'b.c'");
-            equal(value, "", "initial value after 'B' is instantiated");
+            equal(b.a, false, "Value of 'b.a'");
+            equal(b.b, true, "Value of 'b.b'");
+            equal(b.c, "", "Value of 'b.c'");
+            equal(value, "", "Initial value after 'B' is instantiated");
             b.f();
-            equal(value, "AB", "altered value after call of 'B.f()'");
+            equal(value, "AB", "Altered value after call of 'B.f()'");
         },
 
         /**
@@ -939,80 +1168,80 @@
 
             throwed = false
             try {
-                equal(JSC.implement(), undefined, "call of implement with no parameters must return undefined");
+                equal(JSC.implement(), undefined, "Call of implement with no parameters must return undefined");
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "call of implement with no parameters must not throw error");
+            ok(!throwed, "Call of implement with no parameters must not throw error");
 
             throwed = false
             try {
-                equal(JSC.implement("Class"), "Class", "call of implement with no class must return given value");
+                equal(JSC.implement("Class"), "Class", "Call of implement with no class must return given value");
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "call of implement with no class must not throw error");
+            ok(!throwed, "Call of implement with no class must not throw error");
 
             a = JSC.implement(A);
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
 
             a = JSC.implement(A, "test");
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test, "class must implement void interface 'test'");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test, "Class must implement void interface 'test'");
 
             a = JSC.implement(A, []);
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
 
             a = JSC.implement(A, [], "test2");
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test2, "class must implement void interface 'test2'");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test2, "Class must implement void interface 'test2'");
 
             a = JSC.implement(A, ["fn1"]);
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(JSC.isFunction(A.prototype.fn1), "class must implement interface method 'fn1'");
-            ok(JSC.isAbstract(A.prototype.fn1), "method 'fn1' must be abstract");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(JSC.isFunction(A.prototype.fn1), "Class must implement interface method 'fn1'");
+            ok(JSC.isAbstract(A.prototype.fn1), "Method 'fn1' must be abstract");
 
             a = JSC.implement(A, ["fn2"], "test3");
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test3, "class must implement void interface 'test3'");
-            ok(JSC.isFunction(A.prototype.fn2), "class must implement interface method 'fn2'");
-            ok(JSC.isAbstract(A.prototype.fn2), "method 'fn2' must be abstract");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test3, "Class must implement void interface 'test3'");
+            ok(JSC.isFunction(A.prototype.fn2), "Class must implement interface method 'fn2'");
+            ok(JSC.isAbstract(A.prototype.fn2), "Method 'fn2' must be abstract");
 
             a = JSC.implement(A, {});
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
 
             a = JSC.implement(A, {}, "test4");
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test4, "class must implement void interface 'test4'");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test4, "Class must implement void interface 'test4'");
 
             a = JSC.implement(A, {className: "test5"});
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test5, "class must implement void interface 'test5'");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test5, "Class must implement void interface 'test5'");
 
             a = JSC.implement(A, {className: "test7"}, "test6");
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test6, "class must implement void interface 'test6'");
-            ok(undefined === A.interfaces.test7, "class must not implement interface 'test7'");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test6, "Class must implement void interface 'test6'");
+            ok(undefined === A.interfaces.test7, "Class must not implement interface 'test7'");
 
             a = JSC.implement(A, {
                 fn3 : undefined,
                 a1 : ""
             });
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(JSC.isFunction(A.prototype.fn3), "class must implement interface method 'fn3'");
-            ok(JSC.isString(A.prototype.a1), "class must implement interface attribute 'a1'");
-            ok(JSC.isAbstract(A.prototype.fn3), "method 'fn3' must be abstract");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(JSC.isFunction(A.prototype.fn3), "Class must implement interface method 'fn3'");
+            ok(JSC.isString(A.prototype.a1), "Class must implement interface attribute 'a1'");
+            ok(JSC.isAbstract(A.prototype.fn3), "Method 'fn3' must be abstract");
 
             a = JSC.implement(A, {
                 fn4 : function() {
@@ -1020,12 +1249,12 @@
                 },
                 a2 : 10
             }, "test7");
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test7, "class must implement void interface 'test7'");
-            ok(JSC.isFunction(A.prototype.fn4), "class must implement interface method 'fn4'");
-            ok(JSC.isNumeric(A.prototype.a2), "class must implement interface attribute 'a2'");
-            ok(!JSC.isAbstract(A.prototype.fn4), "method 'fn4' must not be abstract");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test7, "Class must implement void interface 'test7'");
+            ok(JSC.isFunction(A.prototype.fn4), "Class must implement interface method 'fn4'");
+            ok(JSC.isNumeric(A.prototype.a2), "Class must implement interface attribute 'a2'");
+            ok(!JSC.isAbstract(A.prototype.fn4), "Method 'fn4' must not be abstract");
 
             a = JSC.implement(A, {
                 className: "test8",
@@ -1034,12 +1263,12 @@
                 },
                 a3 : true
             });
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test8, "class must implement void interface 'test8'");
-            ok(JSC.isFunction(A.prototype.fn5), "class must implement interface method 'fn5'");
-            ok(JSC.isBool(A.prototype.a3), "class must implement interface attribute 'a3'");
-            ok(!JSC.isAbstract(A.prototype.fn5), "method 'fn5' must not be abstract");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test8, "Class must implement void interface 'test8'");
+            ok(JSC.isFunction(A.prototype.fn5), "Class must implement interface method 'fn5'");
+            ok(JSC.isBool(A.prototype.a3), "Class must implement interface attribute 'a3'");
+            ok(!JSC.isAbstract(A.prototype.fn5), "Method 'fn5' must not be abstract");
 
             a = JSC.implement(A, {
                 className: "test10",
@@ -1048,27 +1277,27 @@
                 },
                 a4 : {}
             }, "test9");
-            equal(a, A, "returned class must be equal to original one");
-            equal(A.className, "A", "className must not be altered");
-            ok(A.interfaces.test9, "class must implement void interface 'test9'");
-            ok(undefined === A.interfaces.test10, "class must not implement interface 'test10'");
-            ok(JSC.isFunction(A.prototype.fn6), "class must implement interface method 'fn6'");
-            ok(JSC.isObject(A.prototype.a4), "class must implement interface attribute 'a4'");
-            ok(!JSC.isAbstract(A.prototype.fn6), "method 'fn6' must not be abstract");
+            equal(a, A, "Returned class must be equal to original one");
+            equal(A.className, "A", "ClassName must not be altered");
+            ok(A.interfaces.test9, "Class must implement void interface 'test9'");
+            ok(undefined === A.interfaces.test10, "Class must not implement interface 'test10'");
+            ok(JSC.isFunction(A.prototype.fn6), "Class must implement interface method 'fn6'");
+            ok(JSC.isObject(A.prototype.a4), "Class must implement interface attribute 'a4'");
+            ok(!JSC.isAbstract(A.prototype.fn6), "Method 'fn6' must not be abstract");
 
             a = new A();
             a.className = "A";
             for(i = 1; i < 7; i++) {
-                ok(JSC.isFunction(a["fn" + i]), "instance must have method fn" + i);
+                ok(JSC.isFunction(a["fn" + i]), "Instance must have method fn" + i);
             }
             for(i = 1; i < 5; i++) {
-                ok(undefined != a["a" + i], "instance must have member a" + i);
+                ok(undefined != a["a" + i], "Instance must have member a" + i);
             }
 
             for(i = 1; i < 4; i++) {
                 throwed = false;
                 try {
-                    ok(JSC.isAbstract(a["fn" + i]), "method fn" + i + " must be tagged as abstract");
+                    ok(JSC.isAbstract(a["fn" + i]), "Method fn" + i + " must be tagged as abstract");
                     a["fn" + i]();
                 } catch(e) {
                     throwed = true;
@@ -1078,7 +1307,7 @@
                         ok(false, "Throwed error is not an instance of JSCError !");
                     }
                 }
-                ok(throwed, "calling of abstract method fn" + i + " must throw an exception");
+                ok(throwed, "Calling of abstract method fn" + i + " must throw an exception");
             }
 
             for(i = 4; i < 7; i++) {
@@ -1088,8 +1317,8 @@
                 } catch(e) {
                     throwed = true;
                 }
-                ok(!throwed, "calling of concrete method fn" + i + " must not throw an exception");
-                equal(value, "fn" + i, "value must be altered by a call fn" + i);
+                ok(!throwed, "Calling of concrete method fn" + i + " must not throw an exception");
+                equal(value, "fn" + i, "Value must be altered by a call fn" + i);
             }
         },
 
@@ -1122,19 +1351,19 @@
 
             throwed = false;
             try {
-                equal(JSC.instanceOf(), false, "instance of nothing");
+                equal(JSC.instanceOf(), false, "Instance of nothing");
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "call of instanceOf with no parameters must not throw error");
+            ok(!throwed, "Call of instanceOf with no parameters must not throw error");
 
             throwed = false;
             try {
-                equal(JSC.instanceOf(A), false, "nothing instance of class");
+                equal(JSC.instanceOf(A), false, "Nothing instance of class");
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "call of instanceOf with only one parameter must not throw error");
+            ok(!throwed, "Call of instanceOf with only one parameter must not throw error");
 
             ok(JSC.instanceOf(A, A), "'A' is a fake instance of class 'A'");
             ok(JSC.instanceOf(A, "A"), "'A' is a fake instance of class 'A'");
@@ -1182,39 +1411,39 @@
             var name = "myClass", myClass1 = function(){this.value=1;}, myClass2 = function(){this.value=2;}, Class;
 
             Class = JSC.getClass(myClass1);
-            notEqual(Class, undefined, "the returned class must be defined");
-            ok(JSC.isFunction(Class), "the returned class must be a real class");
-            equal(Class, myClass1, "the returned class must comply to needed one");
-            notEqual(Class, myClass2, "the returned class must not comply to other class");
+            notEqual(Class, undefined, "The returned class must be defined");
+            ok(JSC.isFunction(Class), "The returned class must be a real class");
+            equal(Class, myClass1, "The returned class must comply to needed one");
+            notEqual(Class, myClass2, "The returned class must not comply to other class");
 
             Class = JSC.getClass(myClass2);
-            notEqual(Class, undefined, "the returned class must be defined");
-            ok(JSC.isFunction(Class), "the returned class must be a real class");
-            equal(Class, myClass2, "the returned class must comply to needed one");
-            notEqual(Class, myClass1, "the returned class must not comply to other class");
+            notEqual(Class, undefined, "The returned class must be defined");
+            ok(JSC.isFunction(Class), "The returned class must be a real class");
+            equal(Class, myClass2, "The returned class must comply to needed one");
+            notEqual(Class, myClass1, "The returned class must not comply to other class");
 
-            equal(JSC.getClass(), undefined, "ask for a class with no parameter must return undefined");
-            equal(JSC.getClass(name), undefined, "unknown class must reeturn undefined");
+            equal(JSC.getClass(), undefined, "Ask for a class with no parameter must return undefined");
+            equal(JSC.getClass(name), undefined, "Unknown class must reeturn undefined");
 
             JSC.globalize(name, myClass1);
             Class = JSC.getClass(name);
-            notEqual(Class, undefined, "when the needed class is known the function must return it");
-            equal(Class, myClass1, "the returned class must comply to needed one");
-            notEqual(Class, myClass2, "the returned class must not comply to other class");
+            notEqual(Class, undefined, "When the needed class is known the function must return it");
+            equal(Class, myClass1, "The returned class must comply to needed one");
+            notEqual(Class, myClass2, "The returned class must not comply to other class");
 
             JSC.globalize(name, name);
             Class = JSC.getClass(name);
-            equal(Class, undefined, "ask for class that is not one must return undefined");
-            ok(!JSC.isFunction(Class), "not class must not be considered as a class");
+            equal(Class, undefined, "Ask for class that is not one must return undefined");
+            ok(!JSC.isFunction(Class), "Not class must not be considered as a class");
 
-            notEqual(JSC.getClass(Array), undefined, "ask of native class Array must achieve with success");
-            notEqual(JSC.getClass(Boolean), undefined, "ask of native class Boolean must achieve with success");
-            notEqual(JSC.getClass(Date), undefined, "ask of native class Date must achieve with success");
-            notEqual(JSC.getClass(Function), undefined, "ask of native class Function must achieve with success");
-            notEqual(JSC.getClass(Number), undefined, "ask of native class Number must achieve with success");
-            notEqual(JSC.getClass(Object), undefined, "ask of native class Object must achieve with success");
-            notEqual(JSC.getClass(RegExp), undefined, "ask of native class RegExp must achieve with success");
-            notEqual(JSC.getClass(String), undefined, "ask of native class String must achieve with success");
+            notEqual(JSC.getClass(Array), undefined, "Ask of native class Array must achieve with success");
+            notEqual(JSC.getClass(Boolean), undefined, "Ask of native class Boolean must achieve with success");
+            notEqual(JSC.getClass(Date), undefined, "Ask of native class Date must achieve with success");
+            notEqual(JSC.getClass(Function), undefined, "Ask of native class Function must achieve with success");
+            notEqual(JSC.getClass(Number), undefined, "Ask of native class Number must achieve with success");
+            notEqual(JSC.getClass(Object), undefined, "Ask of native class Object must achieve with success");
+            notEqual(JSC.getClass(RegExp), undefined, "Ask of native class RegExp must achieve with success");
+            notEqual(JSC.getClass(String), undefined, "Ask of native class String must achieve with success");
         },
 
 
@@ -1225,43 +1454,43 @@
             var name = "myClass", myClass1 = function(){this.value=1;}, myClass2 = function(){this.value=2;}, Class;
 
             Class = JSC.loadClass(myClass1);
-            notEqual(Class, undefined, "the returned class must be defined");
-            ok(JSC.isFunction(Class), "the returned class must be a real class");
-            equal(Class, myClass1, "the returned class must comply to needed one");
-            notEqual(Class, myClass2, "the returned class must not comply to other class");
+            notEqual(Class, undefined, "The returned class must be defined");
+            ok(JSC.isFunction(Class), "The returned class must be a real class");
+            equal(Class, myClass1, "The returned class must comply to needed one");
+            notEqual(Class, myClass2, "The returned class must not comply to other class");
 
             Class = JSC.loadClass(myClass2);
-            notEqual(Class, undefined, "the returned class must be defined");
-            ok(JSC.isFunction(Class), "the returned class must be a real class");
-            equal(Class, myClass2, "the returned class must comply to needed one");
-            notEqual(Class, myClass1, "the returned class must not comply to other class");
+            notEqual(Class, undefined, "The returned class must be defined");
+            ok(JSC.isFunction(Class), "The returned class must be a real class");
+            equal(Class, myClass2, "The returned class must comply to needed one");
+            notEqual(Class, myClass1, "The returned class must not comply to other class");
 
             raises(function(){
                 JSC.loadClass();
-            }, "ask for a class with no parameter must thow an error");
+            }, "Ask for a class with no parameter must thow an error");
             raises(function(){
                 JSC.loadClass(name);
-            }, "unknown class must thow an error");
+            }, "Unknown class must thow an error");
 
             JSC.globalize(name, myClass1);
             Class = JSC.loadClass(name);
-            notEqual(Class, undefined, "when the needed class is known the function must return it");
-            equal(Class, myClass1, "the returned class must comply to needed one");
-            notEqual(Class, myClass2, "the returned class must not comply to other class");
+            notEqual(Class, undefined, "When the needed class is known the function must return it");
+            equal(Class, myClass1, "The returned class must comply to needed one");
+            notEqual(Class, myClass2, "The returned class must not comply to other class");
 
             JSC.globalize(name, name);
             raises(function(){
                 Class = JSC.loadClass(name);
-            }, "ask for class that is not one must thow an error");
+            }, "Ask for class that is not one must thow an error");
 
-            notEqual(JSC.loadClass(Array), undefined, "ask of native class Array must achieve with success");
-            notEqual(JSC.loadClass(Boolean), undefined, "ask of native class Boolean must achieve with success");
-            notEqual(JSC.loadClass(Date), undefined, "ask of native class Date must achieve with success");
-            notEqual(JSC.loadClass(Function), undefined, "ask of native class Function must achieve with success");
-            notEqual(JSC.loadClass(Number), undefined, "ask of native class Number must achieve with success");
-            notEqual(JSC.loadClass(Object), undefined, "ask of native class Object must achieve with success");
-            notEqual(JSC.loadClass(RegExp), undefined, "ask of native class RegExp must achieve with success");
-            notEqual(JSC.loadClass(String), undefined, "ask of native class String must achieve with success");
+            notEqual(JSC.loadClass(Array), undefined, "Ask of native class Array must achieve with success");
+            notEqual(JSC.loadClass(Boolean), undefined, "Ask of native class Boolean must achieve with success");
+            notEqual(JSC.loadClass(Date), undefined, "Ask of native class Date must achieve with success");
+            notEqual(JSC.loadClass(Function), undefined, "Ask of native class Function must achieve with success");
+            notEqual(JSC.loadClass(Number), undefined, "Ask of native class Number must achieve with success");
+            notEqual(JSC.loadClass(Object), undefined, "Ask of native class Object must achieve with success");
+            notEqual(JSC.loadClass(RegExp), undefined, "Ask of native class RegExp must achieve with success");
+            notEqual(JSC.loadClass(String), undefined, "Ask of native class String must achieve with success");
         },
 
         /**
@@ -1291,11 +1520,14 @@
                     value += "A";
                 },
                 fn : function() {
-                    value = this.className + ".fn";
-                }
+                    this.fnValue = this.className + ".fn";
+                    value = this.fnValue;
+                },
+                fnValue : ""
             });
             equal(JSC.type(A), "A", "Type of a class must be its name");
-            equal(value, undefined, "value must not be altered by class inheritance mechanism");
+            equal(value, undefined, "Value must not be altered by class inheritance mechanism");
+            equal(A.prototype.className, "A", "Prototype of className in class definition");
 
             value = undefined;
             B = JSC.globalize(JSC.Class({
@@ -1308,8 +1540,9 @@
                 value : "member"
             }));
             equal(JSC.type(B), "B", "Type of a class must be its name");
-            equal(value, undefined, "value must not be altered by class inheritance mechanism");
-            ok(JSC.isInherited(B.prototype.initialize), "method must be tagged as overriding");
+            equal(value, undefined, "Value must not be altered by class inheritance mechanism");
+            ok(JSC.isInherited(B.prototype.initialize), "Method must be tagged as overriding");
+            equal(B.prototype.className, "B", "Prototype of className in class definition");
 
             value = undefined;
             C = JSC.Class({
@@ -1334,6 +1567,7 @@
             ok(JSC.isFunction(C.prototype.fn5), "method fn2 must be implemented");
             equal(JSC.type(C), "C", "Type of a class must be its name");
             equal(value, undefined, "value must not be altered by class inheritance mechanism");
+            equal(C.prototype.className, "C", "Prototype of className in class definition");
 
             value = undefined;
             D = JSC.Class("D", {
@@ -1352,6 +1586,7 @@
             equal(value, undefined, "value must not be altered by class inheritance mechanism");
             ok(JSC.isInherited(D.prototype.initialize), "method must be tagged as overriding");
             ok(JSC.isInherited(D.prototype.fn), "method must be tagged as overriding");
+            equal(D.prototype.className, "D", "Prototype of className in class definition");
 
             value = "";
             a = new A();
@@ -1461,8 +1696,10 @@
             notEqual(fn, a.attach("fn", true), "when rewriting is required, attached function must not be equal to old one");
 
             value = "";
+            a.fnValue = "";
             fn();
             equal(value, "A.fn", "value alterred by member function");
+            equal(a.fnValue, "A.fn", "fnValue alterred by member function");
 
             value = "";
             b.fn();
@@ -1477,8 +1714,10 @@
             notEqual(fn, b.attach("fn", true), "when rewriting is required, attached function must not be equal to old one");
 
             value = "";
+            b.fnValue = "";
             fn();
             equal(value, "B.fn", "value alterred by member function");
+            equal(b.fnValue, "B.fn", "fnValue alterred by member function");
 
             value = "";
             c.fn();
@@ -1493,8 +1732,11 @@
             notEqual(fn, c.attach("fn", true), "when rewriting is required, attached function must not be equal to old one");
 
             value = "";
+            c.fnValue = "";
             fn();
             equal(value, "C.fn", "value alterred by member function");
+            equal(c.fnValue, "C.fn", "fnValue alterred by member function");
+
 
             raises(function(){
                 JSC.Class({
@@ -1505,7 +1747,7 @@
                         this.inherited();
                     }
                 })
-            }, /\bundefinedClass\b/, "An error must be throwed when super class is unknown");
+            }, "An error must be throwed when super class is unknown");
         },
 
         /**
@@ -1805,7 +2047,7 @@
                         this.inherited();
                     }
                 })
-            }, /\bundefinedClass\b/, "An error must be throwed when super class is unknown");
+            }, "An error must be throwed when super class is unknown");
         },
 
         /**
@@ -2145,9 +2387,142 @@
                         this.inherited();
                     }
                 })
-            }, /\bundefinedClass\b/, "An error must be throwed when super class is unknown");
+            }, "An error must be throwed when super class is unknown");
+        },
+
+        /**
+         * Test of JSC.Make()
+         */
+        Make : function() {
+            var value, A, B, C, D, a, b, c, d, e, f, fn, throwed, version = 0;
+
+            throwed = false;
+            try {
+                A = JSC.Make();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(JSC.isFunction(A), "Class definition must be returned when no parameter is given to builder");
+            ok(!throwed, "Class builder must be call without parameters");
+
+            throwed = false;
+            try {
+                A = JSC.Make({value: null});
+                a = new A();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(JSC.isFunction(A), "Class definition must be returned when simple definition is given to builder");
+            ok(!throwed, "Class builder must be call with simple definition");
+            ok("undefined" === typeof A.value, "Class must not have static member affected from given definition");
+            ok("undefined" !== typeof a.value, "Instance must have member affected from given definition");
+
+            throwed = false;
+            value = 3;
+            try {
+                A = JSC.Make("", true, {value: value}, 0, {version: ++ version});
+                a = new A();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(JSC.isFunction(A), "Class definition must be returned when simple definition is given to builder");
+            ok(!throwed, "Class builder must be call with simple definition");
+            ok("undefined" === typeof A.value, "Class must not have static member affected from given definition");
+            ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
+            equal(A.version, version, "Static member a new class must be equal to expected value");
+            equal(a.value, value, "Instance must have member affected from given definition");
+
+            throwed = false;
+            value = 5;
+            try {
+                A = JSC.Make(0, {value: value}, {version: ++ version}, "singleton");
+                a = A.getInstance();
+                b = A.getInstance();
+                c = A.getInstance();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(JSC.isFunction(A), "Class definition must be returned when simple definition is given to builder");
+            ok(!throwed, "Class builder must be call with simple definition");
+            ok("undefined" === typeof A.value, "Class must not have static member affected from given definition");
+            ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
+            equal(A.version, version, "Static member a new class must be equal to expected value");
+            equal(a.value, value, "Instance must have member affected from given definition");
+            ok(a === b && a === c && a.guid === b.guid && a.guid === c.guid, "Each call of getInstance must return same instance");
+
+            throwed = false;
+            try {
+                new A();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(throwed, "Class must be a singleton and not be directly instantiable");
+
+            throwed = false;
+            value = 20;
+            try {
+                A = JSC.Make("multiton", {value: value}, true, {version: ++ version});
+                a = A.getInstance(1);
+                b = A.getInstance(1);
+                c = A.getInstance(2);
+                d = A.getInstance(2);
+                e = A.getInstance(3);
+                f = A.getInstance(3);
+            } catch(e) {
+                throwed = true;
+            }
+            ok(JSC.isFunction(A), "Class definition must be returned when simple definition is given to builder");
+            ok(!throwed, "Class builder must be call with simple definition");
+            ok("undefined" === typeof A.value, "Class must not have static member affected from given definition");
+            ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
+            equal(A.version, version, "Static member a new class must be equal to expected value");
+            equal(a.value, value, "Instance must have member affected from given definition");
+            ok(a === b && a.guid === b.guid, "Each call of getInstance for key 1 must return same instance");
+            ok(c === d && c.guid === d.guid, "Each call of getInstance for key 2 must return same instance");
+            ok(e === f && e.guid === f.guid, "Each call of getInstance for key 3 must return same instance");
+            ok(a !== c && a !== e && c !== e && a.guid !== c.guid && a.guid !== e.guid && c.guid !== e.guid, "Calls of getInstance for different keys must return different instances");
+
+            throwed = false;
+            try {
+                new A();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(throwed, "Class must be a multiton and not be directly instantiable");
+
+
+            throwed = false;
+            value = "local";
+            try {
+                A = JSC.Make({className: "AMake", value: value}, false, {version: ++ version}, "");
+                a = new A();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(!JSC.global("AMake"), "Class must not be global");
+            ok(JSC.isFunction(A), "Class definition must be returned when simple definition is given to builder");
+            ok(!throwed, "Class builder must be call with simple definition");
+            ok("undefined" === typeof A.value, "Class must not have static member affected from given definition");
+            ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
+            equal(A.version, version, "Static member a new class must be equal to expected value");
+            equal(a.value, value, "Instance must have member affected from given definition");
+
+            throwed = false;
+            value = "global";
+            try {
+                A = JSC.Make({className: "AMake", value: value}, {version: ++ version}, "");
+                a = new AMake();
+            } catch(e) {
+                throwed = true;
+            }
+            ok(JSC.global("AMake"), "Class must be global");
+            ok(JSC.isFunction(A), "Class definition must be returned when simple definition is given to builder");
+            ok(!throwed, "Class builder must be call with simple definition");
+            ok("undefined" === typeof A.value, "Class must not have static member affected from given definition");
+            ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
+            equal(A.version, version, "Static member a new class must be equal to expected value");
+            equal(a.value, value, "Instance must have member affected from given definition");
         }
     };
-
-    runTestSuite(testSuiteJSC);
+    new TestSuite(suite, true);
 })(window);
