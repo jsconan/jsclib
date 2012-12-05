@@ -1,10 +1,10 @@
 /*!
- * Test Suite for JavaScript Class Library v0.2 (JSC 0.2)
+ * Test Suite for JavaScript Class Library v0.2.1 (JSC 0.2.1)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
  */
-(function(window, undefined) {
+(function(undefined) {
     var suite = {
         _name : "JSC",
 
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.2", "Version of JSC must be defined");
+            equal(JSC.version, "0.2.1", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
@@ -26,7 +26,7 @@
                 value_2 = JSC.id(),
                 value_3 = [],
                 guid = -1,
-                ret_1, ret_2, ret_3;
+                ret_1, ret_2, ret_3, ret_4;
 
             equal(typeof value_1, "number", "JSC.id() must return a number #1");
             equal(typeof value_2, "number", "JSC.id() must return a number #2");
@@ -69,7 +69,8 @@
          * Test of JSC.type()
          */
         type : function() {
-            var undef;
+            var undef, A = JSC.Class("A");
+
             equal(JSC.type(), "undefined", "Type of undefined");
             equal(JSC.type(undef), "undefined", "Type of undefined variable");
             equal(JSC.type(undefined), "undefined", "Type of undefined value");
@@ -106,19 +107,16 @@
             equal(JSC.type(function(){}), "Function", "Type of Function value");
             equal(JSC.type(JSC.type), "Function", "Type of an object's method");
 
-            equal(JSC.type(window), "Window", "Type of Window object");
-
-            var mokName = "JSCTypeClass";
-            var mokClass = function(){};
-            mokClass.prototype.className = mokClass.className = mokName;
-            equal(JSC.type(mokClass), mokName, "Type of library created class");
-            equal(JSC.type(new mokClass()), mokName, "Type of library created object");
+            equal(JSC.type(A), "A", "Type of library created class");
+            equal(JSC.type(new A()), "A", "Type of library created object");
         },
 
         /**
          * Test of JSC.isFunction()
          */
         isFunction : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isFunction(), false, "An undefined value must not be considered as a function");
             equal(JSC.isFunction(undefined), false, "An undefined value must not be considered as a function");
             equal(JSC.isFunction(null), false, "A null value must not be considered as a function");
@@ -133,11 +131,12 @@
             equal(JSC.isFunction(true), false, "A boolean must not be considered as a function");
             equal(JSC.isFunction(new Boolean()), false, "A boolean must not be considered as a function");
             equal(JSC.isFunction(/xyz/), false, "A regex must not be considered as a function");
-            equal(JSC.isFunction(new RegExp), false, "A regex must not be considered as a function");
+            equal(JSC.isFunction(new RegExp()), false, "A regex must not be considered as a function");
+            equal(JSC.isFunction(new A()), false, "An instance of a class must be not considered as a function");
 
             equal(JSC.isFunction(function(){}), true, "A function must be considered as a function");
             equal(JSC.isFunction(new Function()), true, "A function must be considered as a function");
-            equal(JSC.isFunction(JSC.Class("A")), true, "A class definition must be considered as a function");
+            equal(JSC.isFunction(A), true, "A class definition must be considered as a function");
         },
 
         /**
@@ -160,7 +159,7 @@
             equal(JSC.isClass(true), false, "A boolean must not be considered as a class");
             equal(JSC.isClass(new Boolean()), false, "A boolean must not be considered as a class");
             equal(JSC.isClass(/xyz/), false, "A regex must not be considered as a class");
-            equal(JSC.isClass(new RegExp), false, "A regex must not be considered as a class");
+            equal(JSC.isClass(new RegExp()), false, "A regex must not be considered as a class");
             equal(JSC.isClass(function(){}), false, "A function must not be considered as a class");
             equal(JSC.isClass(new Function()), false, "A function must not be considered as a class");
 
@@ -200,6 +199,8 @@
          * Test of JSC.isAbstract()
          */
         isAbstract : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isAbstract(), false, "An undefined value must not be considered as an abstract function");
             equal(JSC.isAbstract(undefined), false, "An undefined value must not be considered as an abstract function");
             equal(JSC.isAbstract(null), false, "A null value must not be considered as an abstract function");
@@ -214,10 +215,11 @@
             equal(JSC.isAbstract(true), false, "A boolean must not be considered as an abstract function");
             equal(JSC.isAbstract(new Boolean()), false, "A boolean must not be considered as an abstract function");
             equal(JSC.isAbstract(/xyz/), false, "A regex must not be considered as an abstract function");
-            equal(JSC.isAbstract(new RegExp), false, "A regex must not be considered as an abstract function");
+            equal(JSC.isAbstract(new RegExp()), false, "A regex must not be considered as an abstract function");
             equal(JSC.isAbstract(function(){}), false, "A standard function must not be considered as an abstract function");
             equal(JSC.isAbstract(new Function()), false, "A standard function must not be considered as an abstract function");
-            equal(JSC.isAbstract(JSC.Class("A")), false, "A class definition must not be considered as an abstract function");
+            equal(JSC.isAbstract(A), false, "A class definition must not be considered as an abstract function");
+            equal(JSC.isAbstract(new A()), false, "A class instance must not be considered as an abstract function");
 
             equal(JSC.isAbstract(JSC.abstractMethod()), true, "An unnamed abstract function must be considered as an abstract function");
             equal(JSC.isAbstract(JSC.abstractMethod("test")), true, "A named abstract function must be considered as an abstract function");
@@ -227,6 +229,8 @@
          * Test of JSC.isAttached()
          */
         isAttached : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isAttached(), false, "An undefined value must not be considered as an attached function");
             equal(JSC.isAttached(undefined), false, "An undefined value must not be considered as an attached function");
             equal(JSC.isAttached(null), false, "A null value must not be considered as an attached function");
@@ -241,10 +245,11 @@
             equal(JSC.isAttached(true), false, "A boolean must not be considered as an attached function");
             equal(JSC.isAttached(new Boolean()), false, "A boolean must not be considered as an attached function");
             equal(JSC.isAttached(/xyz/), false, "A regex must not be considered as an attached function");
-            equal(JSC.isAttached(new RegExp), false, "A regex must not be considered as an attached function");
+            equal(JSC.isAttached(new RegExp()), false, "A regex must not be considered as an attached function");
             equal(JSC.isAttached(function(){}), false, "A standard function must not be considered as an attached function");
             equal(JSC.isAttached(new Function()), false, "A standard function must not be considered as an attached function");
-            equal(JSC.isAttached(JSC.Class("A")), false, "A class definition must not be considered as an attached function");
+            equal(JSC.isAttached(A), false, "A class definition must not be considered as an attached function");
+            equal(JSC.isAttached(new A()), false, "A class instance must not be considered as an attached function");
 
             equal(JSC.isAttached(JSC.attach(function(){}, this)), true, "An unnamed attached function must be considered as an attached function");
             equal(JSC.isAttached(JSC.attach({test: function(){}}, "test")), true, "A named attached function must be considered as an attached function");
@@ -254,6 +259,8 @@
          * Test of JSC.isInherited()
          */
         isInherited : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isInherited(), false, "An undefined value must not be considered as a function using inheritance");
             equal(JSC.isInherited(undefined), false, "An undefined value must not be considered as a function using inheritance");
             equal(JSC.isInherited(null), false, "A null value must not be considered as a function using inheritance");
@@ -268,10 +275,11 @@
             equal(JSC.isInherited(true), false, "A boolean must not be considered as a function using inheritance");
             equal(JSC.isInherited(new Boolean()), false, "A boolean must not be considered as a function using inheritance");
             equal(JSC.isInherited(/xyz/), false, "A regex must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new RegExp), false, "A regex must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new RegExp()), false, "A regex must not be considered as a function using inheritance");
             equal(JSC.isInherited(function(){}), false, "A standard function must not be considered as a function using inheritance");
             equal(JSC.isInherited(new Function()), false, "A standard function must not be considered as a function using inheritance");
-            equal(JSC.isInherited(JSC.Class("A")), false, "A class definition must not be considered as a function using inheritance");
+            equal(JSC.isInherited(A), false, "A class definition must not be considered as a function using inheritance");
+            equal(JSC.isInherited(new A()), false, "A class instance must not be considered as a function using inheritance");
 
             equal(JSC.isInherited(JSC.override(function(){this.inherited();}, function(){})), true, "An overriding function must be considered as a function using inheritance");
         },
@@ -280,6 +288,8 @@
          * Test of JSC.isArray()
          */
         isArray : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isArray(), false, "An undefined value must not be considered as an array");
             equal(JSC.isArray(undefined), false, "An undefined value must not be considered as an array");
             equal(JSC.isArray(null), false, "A null value must not be considered as an array");
@@ -295,7 +305,9 @@
             equal(JSC.isArray(true), false, "A boolean must not be considered as an array");
             equal(JSC.isArray(new Boolean()), false, "A boolean must not be considered as an array");
             equal(JSC.isArray(/xyz/), false, "A regex must not be considered as an array");
-            equal(JSC.isArray(new RegExp), false, "A regex must not be considered as an array");
+            equal(JSC.isArray(new RegExp()), false, "A regex must not be considered as an array");
+            equal(JSC.isArray(A), false, "A class definition must not be considered as an array");
+            equal(JSC.isArray(new A()), false, "A class instance must not be considered as an array");
 
             equal(JSC.isArray([]), true, "An array must be considerer as an array");
             equal(JSC.isArray(new Array()), true, "An array must be considerer as an array");
@@ -305,6 +317,8 @@
          * Test of JSC.isObject()
          */
         isObject : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isObject(), false, "An undefined value must not be considered as an object");
             equal(JSC.isObject(undefined), false, "An undefined value must not be considered as an object");
             equal(JSC.isObject(null), false, "A null value must not be considered as an object");
@@ -320,10 +334,12 @@
             equal(JSC.isObject(true), false, "A boolean must not be considered as an object");
             equal(JSC.isObject(new Boolean()), false, "A boolean must not be considered as an object");
             equal(JSC.isObject(/xyz/), false, "A regex must not be considered as an object");
-            equal(JSC.isObject(new RegExp), false, "A regex must not be considered as an object");
+            equal(JSC.isObject(new RegExp()), false, "A regex must not be considered as an object");
+            equal(JSC.isObject(A), false, "A class definition must not be considered as an object");
 
             equal(JSC.isObject({}), true, "An object must be considerer as an object");
             equal(JSC.isObject(new Object()), true, "An object must be considerer as an object");
+            equal(JSC.isObject(new A()), true, "A class instance must be considered as an object");
         },
 
         /**
@@ -347,7 +363,7 @@
             equal(JSC.isEmptyObject(true), false, "A boolean must not be considered as an empty object");
             equal(JSC.isEmptyObject(new Boolean()), false, "A boolean must not be considered as an empty object");
             equal(JSC.isEmptyObject(/xyz/), false, "A regex must not be considered as an empty object");
-            equal(JSC.isEmptyObject(new RegExp), false, "A regex must not be considered as an empty object");
+            equal(JSC.isEmptyObject(new RegExp()), false, "A regex must not be considered as an empty object");
             equal(JSC.isEmptyObject({test: 1}), false, "A filled object must not be considerer as an empty object");
             equal(JSC.isEmptyObject(A), false, "An empty class must not be considerer as an empty object");
             equal(JSC.isEmptyObject(new A()), false, "An instance of an empty class must not be considerer as an empty object");
@@ -360,6 +376,8 @@
          * Test of JSC.isString()
          */
         isString : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isString(), false, "An undefined value must not be considered as a string");
             equal(JSC.isString(undefined), false, "An undefined value must not be considered as a string");
             equal(JSC.isString(null), false, "A null value must not be considered as a string");
@@ -376,6 +394,8 @@
             equal(JSC.isString(new Boolean()), false, "A boolean must not be considered as a string");
             equal(JSC.isString(/xyz/), false, "A regex must not be considered as a string");
             equal(JSC.isString(new RegExp()), false, "A regex must not be considered as a string");
+            equal(JSC.isString(A), false, "A class definition must not be considered as a string");
+            equal(JSC.isString(new A()), false, "A class instance must not be considered as a string");
 
             equal(JSC.isString(""), true, "A string must be considered as a string");
             equal(JSC.isString(new String()), true, "A string must be considered as a string");
@@ -385,6 +405,8 @@
          * Test of JSC.isBool()
          */
         isBool : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isBool(), false, "An undefined value must not be considered as a boolean");
             equal(JSC.isBool(undefined), false, "An undefined value must not be considered as a boolean");
             equal(JSC.isBool(null), false, "A null value must not be considered as a boolean");
@@ -401,6 +423,8 @@
             equal(JSC.isBool(new String()), false, "A boolean must not be considered as a boolean");
             equal(JSC.isBool(/xyz/), false, "A regex must not be considered as a boolean");
             equal(JSC.isBool(new RegExp()), false, "A regex must not be considered as a boolean");
+            equal(JSC.isBool(A), false, "A class definition must not be considered as a boolean");
+            equal(JSC.isBool(new A()), false, "A class instance must not be considered as a boolean");
 
             equal(JSC.isBool(true), true, "A boolean must be considered as a boolean");
             equal(JSC.isBool(false), true, "A boolean must be considered as a boolean");
@@ -411,6 +435,8 @@
          * Test of JSC.isNumeric()
          */
         isNumeric : function() {
+            var A = JSC.Class("A");
+
             equal(JSC.isNumeric(), false, "An undefined value must not be considered as a numeric value");
             equal(JSC.isNumeric(undefined), false, "An undefined value must not be considered as a numeric value");
             equal(JSC.isNumeric(null), false, "A null value must not be considered as a numeric value");
@@ -427,6 +453,8 @@
             equal(JSC.isNumeric(new Boolean()), false, "A boolean must not be considered as a numeric value");
             equal(JSC.isNumeric(/xyz/), false, "A regex must not be considered as a numeric value");
             equal(JSC.isNumeric(new RegExp()), false, "A regex must not be considered as a numeric value");
+            equal(JSC.isNumeric(A), false, "A class definition must not be considered as a numeric value");
+            equal(JSC.isNumeric(new A()), false, "A class instance must not be considered as a numeric value");
 
             equal(JSC.isNumeric("10"), true, "A string containing numbers must be considered as a numeric value");
             equal(JSC.isNumeric("1234.5678"), true, "A string containing decimal numbers must be considered as a numeric value");
@@ -577,6 +605,7 @@
             equal(JSC.toString(true), "true", "JSC.toString(true) must return 'true'");
             equal(JSC.toString(false), "false", "JSC.toString(false) must return 'false'");
             equal(JSC.toString(null), "null", "JSC.toString(null) must return 'null'");
+            equal(JSC.toString(""), '""', "JSC.toString('') must return '\"\"'");
             equal(JSC.toString('\ttext\n"hello"\\'), '"\\ttext\\n\\"hello\\"\\\\"', 'JSC.toString(\'\\ttext\\n"hello"\\\\\') must return \'"\\ttext\\n\\"hello\\"\\\\"\'');
             equal(JSC.toString(10), '10', "JSC.toString(10) must return '10'");
             equal(JSC.toString(3.14), '3.14', "JSC.toString(3.14) must return '3.14'");
@@ -589,6 +618,309 @@
         },
 
         /**
+         * Test of JSC.jsonData()
+         */
+        jsonData : function() {
+            var val, ret, exp;
+            strictEqual(JSC.jsonData(), undefined, "undefined value");
+            strictEqual(JSC.jsonData(new Function()), undefined, "function object");
+            strictEqual(JSC.jsonData(function(){}), undefined, "function value");
+            strictEqual(JSC.jsonData(/test/), undefined, "regexp value");
+            strictEqual(JSC.jsonData(new RegExp()), undefined, "regexp object");
+            strictEqual(JSC.jsonData(new Date()), undefined, "date object");
+            strictEqual(JSC.jsonData(true), true, "boolean 'true' value");
+            strictEqual(JSC.jsonData(false), false, "boolean 'false' value");
+            strictEqual(JSC.jsonData(null), null, "null value");
+            strictEqual(JSC.jsonData(""), "", "void string value");
+            strictEqual(JSC.jsonData("test"), "test", "string value");
+            strictEqual(JSC.jsonData(0), 0, "void number");
+            strictEqual(JSC.jsonData(10), 10, "positive number");
+            strictEqual(JSC.jsonData(-24), -24, "negative number");
+            strictEqual(JSC.jsonData(3.14), 3.14, "decimal number");
+            strictEqual(JSC.jsonData(10/3), 10/3, "decimal number");
+            strictEqual(JSC.jsonData(Infinity), null, "decimal non finite number");
+            strictEqual(JSC.jsonData(3.14e-10), 3.14e-10, "decimal exposant number");
+
+            val = [];
+            exp = [];
+            ret = JSC.jsonData(val);
+            deepEqual(ret, exp, "void array");
+            notStrictEqual(ret, val, "void array must be cloned");
+
+            val = [1,2,null,"3",true,false,undefined,function(){},/exp/,new Date(),{t:2},[1]];
+            exp = [1,2,null,"3",true,false,{t:2},[1]];
+            ret = JSC.jsonData(val);
+            deepEqual(ret, exp, "full array");
+            notStrictEqual(ret, val, "array must be cloned");
+            notStrictEqual(ret[ret.length - 2], val[val.length - 2], "array contained object must be cloned");
+            notStrictEqual(ret[ret.length - 1], val[val.length - 1], "array contained array must be cloned");
+
+            val = {};
+            exp = {};
+            ret = JSC.jsonData(val);
+            deepEqual(ret, exp, "void object");
+            notStrictEqual(ret, val, "void object must be cloned");
+
+            val = {
+                v1: 1,
+                v2: 2,
+                v3: null,
+                v4: "3",
+                v5: true,
+                v6: false,
+                v7: undefined,
+                v8: function(){},
+                v9: /exp/,
+                v10: new Date(),
+                v11: {t:2},
+                v12: [1]
+            };
+            exp = {
+                v1: 1,
+                v2: 2,
+                v3: null,
+                v4: "3",
+                v5: true,
+                v6: false,
+                v11: {t:2},
+                v12: [1]
+            };
+            ret = JSC.jsonData(val);
+            deepEqual(ret, exp, "full object");
+            notStrictEqual(ret, val, "object must be cloned");
+            notStrictEqual(ret.v11, val.v11, "object contained object must be cloned");
+            notStrictEqual(ret.v12, val.v12, "object contained array must be cloned");
+        },
+
+        /**
+         * Test of JSC.jsonString()
+         */
+        jsonString : function() {
+            var val, ret, exp;
+
+            strictEqual(JSC.jsonString(), "", "undefined value");
+            strictEqual(JSC.jsonString(new Function()), "", "function object");
+            strictEqual(JSC.jsonString(function(){}), "", "function value");
+            strictEqual(JSC.jsonString(/test/), "", "regexp value");
+            strictEqual(JSC.jsonString(new RegExp()), "", "regexp object");
+            strictEqual(JSC.jsonString(new Date()), "", "date object");
+
+            equal(JSC.jsonString(true), "true", "boolean 'true' value");
+            equal(JSC.jsonString(false), "false", "boolean 'false' value");
+            equal(JSC.jsonString(null), "null", "null value");
+            equal(JSC.jsonString(""), '""', "void string value");
+            equal(JSC.jsonString("test"), '"test"', "string value");
+            equal(JSC.jsonString(0), "0", "void number");
+            equal(JSC.jsonString(10), "10", "positive number");
+            equal(JSC.jsonString(-24), "-24", "negative number");
+            equal(JSC.jsonString(3.14), "3.14", "decimal number");
+            equal(JSC.jsonString(10/3), "" + (10/3), "decimal number");
+            equal(JSC.jsonString(Infinity), "null", "decimal non finite number");
+            equal(JSC.jsonString(3.14e-10), "3.14e-10", "decimal exposant number");
+
+            val = [];
+            exp = "[]";
+            ret = JSC.jsonString(val);
+            equal(ret, exp, "void array");
+
+            val = [1,2,null,"3",true,false,undefined,function(){},/exp/,new Date(),{t:2},[1]];
+            exp = '[1,2,null,"3",true,false,{"t":2},[1]]';
+            ret = JSC.jsonString(val);
+            equal(ret, exp, "full array");
+
+            val = {};
+            exp = "{}";
+            ret = JSC.jsonString(val);
+            equal(ret, exp, "void object");
+
+            val = {
+                v1: 1,
+                v2: 2,
+                v3: null,
+                v4: "3",
+                v5: true,
+                v6: false,
+                v7: undefined,
+                v8: function(){},
+                v9: /exp/,
+                v10: new Date(),
+                v11: {t:2},
+                v12: [1]
+            };
+            exp = '{"v1":1,"v2":2,"v3":null,"v4":"3","v5":true,"v6":false,"v11":{"t":2},"v12":[1]}';
+            ret = JSC.jsonString(val);
+            equal(ret, exp, "full object");
+        },
+
+        /**
+         * Test of JSC.jsonParse()
+         */
+        jsonParse : function(s) {
+            var throwed = false;
+            try {
+                function _isNull(value, message) {
+                    strictEqual(JSC.jsonParse(value), null, message || (typeof value) + " value");
+                }
+
+                function _isStrictEqual(value, expected, message) {
+                    strictEqual(JSC.jsonParse(value), expected, message);
+                    strictEqual(JSC.jsonParse("  " + value + "  "), expected, message + " (with padding)");
+                }
+
+                function _isDeepEqual(value, expected, message) {
+                    deepEqual(JSC.jsonParse(value), expected, message);
+                    deepEqual(JSC.jsonParse("  " + value + "  "), expected, message + " (with padding)");
+                }
+
+                _isNull();
+                _isNull(null);
+                _isNull(10);
+                _isNull(14.8);
+                _isNull(true);
+                _isNull(false);
+                _isNull(function(){});
+                _isNull(new Date());
+                _isNull(/test/);
+                _isNull([]);
+                _isNull([1.8, "f"]);
+                _isNull({});
+                _isNull({t1:1, t2:""});
+
+                _isNull("", "void string value");
+                _isNull("  ", "blank string value");
+                _isNull("FALSE", "wrong boolean string value");
+                _isNull("test is test", "misc string value");
+                _isNull("function(){return 1;}", "string representing function");
+                _isNull("/xyz/", "string representing regexp");
+                _isNull("" + (new Date()), "string representing date");
+
+                _isStrictEqual("10", 10, "string representing positive number");
+                _isStrictEqual("-24", -24, "string representing negative number");
+                _isStrictEqual("3.14", 3.14, "string representing decimal number");
+                _isStrictEqual("3.14e-10", 3.14e-10, "string representing decimal exposant number");
+                _isStrictEqual("true", true, "string representing boolean 'true'");
+                _isStrictEqual("false", false, "string representing boolean 'false'");
+                _isStrictEqual("null", null, "string representing null");
+
+                _isDeepEqual("[]", [], "string representing void array");
+                _isDeepEqual('[1,[2,3],{},true,null,"test",{"t":301.14,"v":null},null]', [1,[2,3],{},true,null,"test",{"t":301.14,"v":null},null], "string representing full array");
+                _isNull('[1,[2,3],{,true,null,"test",{"t":301.14,"v":null},null]', "string representing wrong array");
+
+                _isDeepEqual("{}", {}, "string representing void object");
+                _isDeepEqual('{"a":1,"b":null,"c":[],"d":{},"e":"","f":"tt","g":false,"h":true,"i":-20,"j":3.14,"k":[1,2,{},[],{"t":null,"i":[]}]}', {"a":1,"b":null,"c":[],"d":{},"e":"","f":"tt","g":false,"h":true,"i":-20,"j":3.14,"k":[1,2,{},[],{"t":null,"i":[]}]}, "string representing full object");
+                _isNull('{"a":1,"b":null,"c":[,"d":{},"e":"","f":"tt","g":false,"h":true,"i":-20,"j:3.14,"k":[1,2,{},[],"t":null,"i":[]}]}', "string representing wrong object");
+            } catch(e) {
+                throwed = true;
+            }
+            ok(!throwed, "JSC.jsonParse() must not throw any error");
+        },
+
+        /**
+         * Test of JSC.sort()
+         */
+        sort : function() {
+            var val, exp, throwed = false;
+            try {
+                function _isStrictEqual(value, message) {
+                    strictEqual(JSC.sort(value), value, message);
+                }
+                function _isDeepEqual(value, keys, expected, message) {
+                    var ret = JSC.sort(value, keys);
+                    strictEqual(ret, value, message + ' - strict equal');
+                    deepEqual(ret, expected, message + ' - deep equal');
+                }
+                function tos() {
+                    return (this.name || "") + '-' + (this.age || "");
+                }
+
+                _isStrictEqual(undefined, "undefined value");
+                _isStrictEqual(null, "null value");
+                _isStrictEqual(10, "number value");
+                _isStrictEqual("10", "string value");
+                _isStrictEqual(true, "boolean value");
+                _isStrictEqual({}, "void object value");
+                _isStrictEqual({k:1}, "object value");
+                _isStrictEqual([], "void array");
+                _isStrictEqual(function(){}, "void function");
+                _isStrictEqual(/test/, "regex");
+
+                _isDeepEqual([9,8,2], null, [2,8,9], "array of numbers");
+                _isDeepEqual([9,8,2], ["k", "v"], [2,8,9], "array of numbers, and dummy keys");
+
+                val = [
+                    {name: "Bianca", age: 19, city: "Amsterdam", toString: tos},
+                    {name: "John", age: 19, city: "London", toString: tos},
+                    10,
+                    {name: "Pierre", age: 22, city: "Paris", toString: tos},
+                    {name: "Frank", age: 22, city: "Berlin", toString: tos},
+                    {name: "Pierre", age: 23, city: "Luxembourg", toString: tos},
+                    {name: "Edgar", age: 27, city: "London", toString: tos},
+                    null,
+                    {name: "Patrick", age: 32, city: "Amsterdam", toString: tos},
+                    {name: "Jean", age: 21, city: "Paris", toString: tos},
+                    {Name: "Paul", age: 22, city: "Berlin", toString: tos},
+                    {name: "Fritz", age: 23, City: "Berlin", toString: tos},
+                    {name: "Ann", age: 23, city: "Luxembourg", toString: tos},
+                    {name: "Charles", age: 45, city: "Luxembourg", toString: tos},
+                    {}
+                ];
+                exp = [
+                    null,
+                    10,
+                    {},
+                    {name: "Fritz", age: 23, City: "Berlin", toString: tos},
+                    {name: "Bianca", age: 19, city: "Amsterdam", toString: tos},
+                    {name: "Patrick", age: 32, city: "Amsterdam", toString: tos},
+                    {Name: "Paul", age: 22, city: "Berlin", toString: tos},
+                    {name: "Frank", age: 22, city: "Berlin", toString: tos},
+                    {name: "John", age: 19, city: "London", toString: tos},
+                    {name: "Edgar", age: 27, city: "London", toString: tos},
+                    {name: "Ann", age: 23, city: "Luxembourg", toString: tos},
+                    {name: "Pierre", age: 23, city: "Luxembourg", toString: tos},
+                    {name: "Charles", age: 45, city: "Luxembourg", toString: tos},
+                    {name: "Jean", age: 21, city: "Paris", toString: tos},
+                    {name: "Pierre", age: 22, city: "Paris", toString: tos}
+                ];
+                _isDeepEqual(val, ["city", "age", "name"], exp, "array of objects");
+
+                val = [
+                    {name: "Bianca", age: 19, city: "Amsterdam", toString: tos},
+                    {name: "John", age: 19, city: "London", toString: tos},
+                    {name: "Pierre", age: 22, city: "Paris", toString: tos},
+                    {name: "Frank", age: 22, city: "Berlin", toString: tos},
+                    {name: "Pierre", age: 23, city: "Luxembourg", toString: tos},
+                    {name: "Edgar", age: 27, city: "London", toString: tos},
+                    {name: "Patrick", age: 32, city: "Amsterdam", toString: tos},
+                    {name: "Jean", age: 21, city: "Paris", toString: tos},
+                    {Name: "Paul", age: 22, city: "Berlin", toString: tos},
+                    {name: "Fritz", age: 23, City: "Berlin", toString: tos},
+                    {name: "Ann", age: 23, city: "Luxembourg", toString: tos},
+                    {name: "Charles", age: 45, city: "Luxembourg", toString: tos}
+                ];
+                exp = [
+                    {Name: "Paul", age: 22, city: "Berlin", toString: tos},
+                    {name: "Ann", age: 23, city: "Luxembourg", toString: tos},
+                    {name: "Bianca", age: 19, city: "Amsterdam", toString: tos},
+                    {name: "Charles", age: 45, city: "Luxembourg", toString: tos},
+                    {name: "Edgar", age: 27, city: "London", toString: tos},
+                    {name: "Frank", age: 22, city: "Berlin", toString: tos},
+                    {name: "Fritz", age: 23, City: "Berlin", toString: tos},
+                    {name: "Jean", age: 21, city: "Paris", toString: tos},
+                    {name: "John", age: 19, city: "London", toString: tos},
+                    {name: "Patrick", age: 32, city: "Amsterdam", toString: tos},
+                    {name: "Pierre", age: 22, city: "Paris", toString: tos},
+                    {name: "Pierre", age: 23, city: "Luxembourg", toString: tos}
+                ];
+                _isDeepEqual(val, null, exp, "array of objects, no keys");
+
+            } catch(e) {
+                throwed = true;
+                console.log(e)
+            }
+            ok(!throwed, "JSC.sort() must not throw any error");
+        },
+
+        /**
          * Test of JSC.merge()
          */
         merge : function() {
@@ -596,28 +928,28 @@
 
             o1 = JSC.merge();
             ok("object" === typeof o1 && JSC.isEmptyObject(o1), "Merging of no object must at least produce an empty object");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
+            deepEqual(o1, {}, "Merge result of empty object");
 
             o1 = JSC.merge(o);
             equal(o, o1, "Merge of a single object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
+            deepEqual(o1, {}, "Merge result of empty object");
 
             o1 = JSC.merge(o, o);
             equal(o, o1, "Merge of a single object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
+            deepEqual(o1, {}, "Merge result of empty object");
 
             o1 = JSC.merge(true);
             ok("object" == typeof(o1), "Merging of no object but a boolean must at least produce an object");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
+            deepEqual(o1, {}, "Merge result of empty object");
 
             o1 = JSC.merge(o, {});
             equal(o, o1, "Merge of an object with another empty object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({}), "Merge result of empty object");
+            deepEqual(o1, {}, "Merge result of empty object");
 
             o.a = false;
             o1 = JSC.merge(o, {});
             equal(o, o1, "Merge of an object with another empty object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({a:false}), "Merge result of empty object");
+            deepEqual(o1, {a:false}, "Merge result of empty object");
 
             o1 = JSC.merge(o, {
                 a : true,
@@ -626,12 +958,12 @@
                 }
             });
             equal(o, o1, "Merge of an object with another empty object must return it at least");
-            equal(JSC.toString(o1), JSC.toString({
+            deepEqual(o1, {
                 a : true,
                 b : {
                     a : false
                 }
-            }), "Merge result");
+            }, "Merge result");
 
             o1 = JSC.merge(o, {
                 a : 10,
@@ -641,13 +973,13 @@
                 c : "tests"
             });
             equal(o, o1, "Merge must return destination object");
-            equal(JSC.toString(o1), JSC.toString({
+            deepEqual(o1, {
                 a : 10,
                 b : {
                     a : 3
                 },
                 c : "tests"
-            }), "Merge result");
+            }, "Merge result");
 
             o1 = JSC.merge(o, true, {
                 b : {
@@ -655,14 +987,14 @@
                 }
             });
             equal(o, o1, "Merge must return destination object");
-            equal(JSC.toString(o1), JSC.toString({
+            deepEqual(o1, {
                 a : 10,
                 b : {
                     a : 3,
                     b : 4
                 },
                 c : "tests"
-            }), "Merge result");
+            }, "Merge result");
 
             o1 = JSC.merge(o, {
                 c : {
@@ -674,7 +1006,7 @@
                 }
             });
             equal(o, o1, "Merge must return destination object");
-            equal(JSC.toString(o1), JSC.toString({
+            deepEqual(o1, {
                 a : 10,
                 b : {
                     a : 3,
@@ -684,7 +1016,7 @@
                 c : {
                     f : 1
                 }
-            }), "Merge result");
+            }, "Merge result");
 
             o1 = JSC.merge(o, true, {
                 b : {
@@ -696,7 +1028,7 @@
                 }
             });
             equal(o, o1, "Merge must return destination object");
-            equal(JSC.toString(o1), JSC.toString({
+            deepEqual(o1, {
                 a : 10,
                 b : {
                     a : 3,
@@ -707,7 +1039,7 @@
                 c : {
                     a : 4
                 }
-            }), "Merge result");
+            }, "Merge result");
         },
 
         /**
@@ -758,7 +1090,7 @@
 
             equal(o1, o3, "Returned object must be equal to given one");
             equal(count, 3, "Function must be called for each property of the object");
-            equal(JSC.toString(o1), JSC.toString(o2), "Result of walking in object");
+            deepEqual(o1, o2, "Result of walking in object");
 
             /**/
             a1.push("dd");
@@ -777,7 +1109,7 @@
             equal(a1, a3, "Returned array must be equal to given one");
             equal(count, a1.length, "Function must be called for each item of the array");
             equal(a2.length, a1.length, "Result array must have same length of walked array");
-            equal(JSC.toString(a1), JSC.toString(a2), "Result of walking in array");
+            deepEqual(a1, a2, "Result of walking in array");
 
             /**/
             o1.it1 = {value: 4, action: fn};
@@ -2525,4 +2857,4 @@
         }
     };
     new TestSuite(suite, true);
-})(window);
+})();
