@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.2.2 (JSC 0.2.2)
+ * Test Suite for JavaScript Class Library v0.2.3 (JSC 0.2.3)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.2.2", "Version of JSC must be defined");
+            equal(JSC.version, "0.2.3", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
@@ -918,6 +918,28 @@
                 console.log(e)
             }
             ok(!throwed, "JSC.sort() must not throw any error");
+        },
+
+        /**
+         * Test of JSC.shuffle()
+         */
+        shuffle : function() {
+            var i, b, a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], len = a.length, asum = (len * (len + 1)) / 2, n = len / 2;
+
+            function sum(v) {
+                var s = 0, i = 0;
+                while( i < v.length ) {
+                    s += v[i++];
+                }
+                return s;
+            }
+
+            for(i = 0; i < n; i++) {
+                b = JSC.shuffle(a.slice(0));
+                notDeepEqual(a, b, "Array must be shuffled !");
+                equal(len, b.length, "Length must be conserved");
+                equal(asum, sum(b), "Sum must be conserved");
+            }
         },
 
         /**
