@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.2.1 (JSC 0.2.1)
+ * Test Suite for JavaScript Class Library v0.2.2 (JSC 0.2.2)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.2.1", "Version of JSC must be defined");
+            equal(JSC.version, "0.2.2", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
