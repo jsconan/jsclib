@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.2.3 (JSC 0.2.3)
+ * Test Suite for JavaScript Class Library v0.2.4 (JSC 0.2.4)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.2.3", "Version of JSC must be defined");
+            equal(JSC.version, "0.2.4", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
@@ -466,6 +466,108 @@
         },
 
         /**
+         * Test of JSC.isNull()
+         */
+        isNull : function() {
+            var A = JSC.Class("A");
+
+            equal(JSC.isNull(), false, "An undefined value must not be considered as a null value");
+            equal(JSC.isNull(undefined), false, "An undefined value must not be considered as a null value");
+            equal(JSC.isNull("10"), false, "A string containing numbers must not be considered as a null value");
+            equal(JSC.isNull("1234.5678"), false, "A string containing decimal numbers must not be considered as a null value");
+            equal(JSC.isNull("1234.5678e124"), false, "A string containing decimal numbers must not be considered as a null value");
+            equal(JSC.isNull("1234ttt5678e124"), false, "A string containing numbers and other chars must not be considered as a null value");
+            equal(JSC.isNull(10), false, "A number must not be considered as a null value");
+            equal(JSC.isNull(Math.PI), false, "Math.PI must not be considered as a null value");
+            equal(JSC.isNull(new Number()), false, "A number object must not be considered as a null value");
+            equal(JSC.isNull({}), false, "An object must not be considered as a null value");
+            equal(JSC.isNull(new Object()), false, "An object must not be considered as a null value");
+            equal(JSC.isNull([]), false, "An array must not be considered as a null value");
+            equal(JSC.isNull(new Array()), false, "An array must not be considered as a null value");
+            equal(JSC.isNull(function(){}), false, "A function must not be considered as a null value");
+            equal(JSC.isNull(JSC.Class("A")), false, "A class definition must not be considered as a null value");
+            equal(JSC.isNull(new Function()), false, "A function must not be considered as a null value");
+            equal(JSC.isNull("ddd"), false, "A string must not be considered as a null value");
+            equal(JSC.isNull(new String()), false, "A string must not be considered as a null value");
+            equal(JSC.isNull(true), false, "A boolean must not be considered as a null value");
+            equal(JSC.isNull(new Boolean()), false, "A boolean must not be considered as a null value");
+            equal(JSC.isNull(/xyz/), false, "A regex must not be considered as a null value");
+            equal(JSC.isNull(new RegExp()), false, "A regex must not be considered as a null value");
+            equal(JSC.isNull(A), false, "A class definition must not be considered as a null value");
+            equal(JSC.isNull(new A()), false, "A class instance must not be considered as a null value");
+
+            equal(JSC.isNull(null), true, "A null value must be considered as a null value");
+        },
+
+        /**
+         * Test of JSC.isUndef()
+         */
+        isUndef : function() {
+            var A = JSC.Class("A");
+
+            equal(JSC.isUndef(null), false, "A null value must not be considered as an undefined value");
+            equal(JSC.isUndef("10"), false, "A string containing numbers must not be considered as an undefined value");
+            equal(JSC.isUndef("1234.5678"), false, "A string containing decimal numbers must not be considered as an undefined value");
+            equal(JSC.isUndef("1234.5678e124"), false, "A string containing decimal numbers must not be considered as an undefined value");
+            equal(JSC.isUndef("1234ttt5678e124"), false, "A string containing numbers and other chars must not be considered as an undefined value");
+            equal(JSC.isUndef(10), false, "A number must not be considered as an undefined value");
+            equal(JSC.isUndef(Math.PI), false, "Math.PI must not be considered as an undefined value");
+            equal(JSC.isUndef(new Number()), false, "A number object must not be considered as an undefined value");
+            equal(JSC.isUndef({}), false, "An object must not be considered as an undefined value");
+            equal(JSC.isUndef(new Object()), false, "An object must not be considered as an undefined value");
+            equal(JSC.isUndef([]), false, "An array must not be considered as an undefined value");
+            equal(JSC.isUndef(new Array()), false, "An array must not be considered as an undefined value");
+            equal(JSC.isUndef(function(){}), false, "A function must not be considered as an undefined value");
+            equal(JSC.isUndef(JSC.Class("A")), false, "A class definition must not be considered as an undefined value");
+            equal(JSC.isUndef(new Function()), false, "A function must not be considered as an undefined value");
+            equal(JSC.isUndef("ddd"), false, "A string must not be considered as an undefined value");
+            equal(JSC.isUndef(new String()), false, "A string must not be considered as an undefined value");
+            equal(JSC.isUndef(true), false, "A boolean must not be considered as an undefined value");
+            equal(JSC.isUndef(new Boolean()), false, "A boolean must not be considered as an undefined value");
+            equal(JSC.isUndef(/xyz/), false, "A regex must not be considered as an undefined value");
+            equal(JSC.isUndef(new RegExp()), false, "A regex must not be considered as an undefined value");
+            equal(JSC.isUndef(A), false, "A class definition must not be considered as an undefined value");
+            equal(JSC.isUndef(new A()), false, "A class instance must not be considered as an undefined value");
+
+            equal(JSC.isUndef(), true, "An undefined value must be considered as an undefined value");
+            equal(JSC.isUndef(undefined), true, "An undefined value must be considered as an undefined value");
+        },
+
+        /**
+         * Test of JSC.isVoid()
+         */
+        isVoid : function() {
+            var A = JSC.Class("A");
+
+            equal(JSC.isVoid("10"), false, "A string containing numbers must not be considered as a null or undefined value");
+            equal(JSC.isVoid("1234.5678"), false, "A string containing decimal numbers must not be considered as a null or undefined value");
+            equal(JSC.isVoid("1234.5678e124"), false, "A string containing decimal numbers must not be considered as a null or undefined value");
+            equal(JSC.isVoid("1234ttt5678e124"), false, "A string containing numbers and other chars must not be considered as a null or undefined value");
+            equal(JSC.isVoid(10), false, "A number must not be considered as a null or undefined value");
+            equal(JSC.isVoid(Math.PI), false, "Math.PI must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new Number()), false, "A number object must not be considered as a null or undefined value");
+            equal(JSC.isVoid({}), false, "An object must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new Object()), false, "An object must not be considered as a null or undefined value");
+            equal(JSC.isVoid([]), false, "An array must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new Array()), false, "An array must not be considered as a null or undefined value");
+            equal(JSC.isVoid(function(){}), false, "A function must not be considered as a null or undefined value");
+            equal(JSC.isVoid(JSC.Class("A")), false, "A class definition must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new Function()), false, "A function must not be considered as a null or undefined value");
+            equal(JSC.isVoid("ddd"), false, "A string must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new String()), false, "A string must not be considered as a null or undefined value");
+            equal(JSC.isVoid(true), false, "A boolean must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new Boolean()), false, "A boolean must not be considered as a null or undefined value");
+            equal(JSC.isVoid(/xyz/), false, "A regex must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new RegExp()), false, "A regex must not be considered as a null or undefined value");
+            equal(JSC.isVoid(A), false, "A class definition must not be considered as a null or undefined value");
+            equal(JSC.isVoid(new A()), false, "A class instance must not be considered as a null or undefined value");
+
+            equal(JSC.isVoid(), true, "An undefined value must be considered as a null or undefined value");
+            equal(JSC.isVoid(undefined), true, "An undefined value must be considered as a null or undefined value");
+            equal(JSC.isVoid(null), true, "A null value must be considered as a null or undefined value");
+        },
+
+        /**
          * Test of JSC.error()
          */
         error : function() {
@@ -862,12 +964,12 @@
                     {name: "Fritz", age: 23, City: "Berlin", toString: tos},
                     {name: "Ann", age: 23, city: "Luxembourg", toString: tos},
                     {name: "Charles", age: 45, city: "Luxembourg", toString: tos},
-                    {}
+                    20
                 ];
                 exp = [
                     null,
                     10,
-                    {},
+                    20,
                     {name: "Fritz", age: 23, City: "Berlin", toString: tos},
                     {name: "Bianca", age: 19, city: "Amsterdam", toString: tos},
                     {name: "Patrick", age: 32, city: "Amsterdam", toString: tos},
