@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.2.4 (JSC 0.2.4)
+ * Test Suite for JavaScript Class Library v0.3.0 (JSC 0.3.0)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.2.4", "Version of JSC must be defined");
+            equal(JSC.version, "0.3.0", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
@@ -795,44 +795,44 @@
         },
 
         /**
-         * Test of JSC.jsonString()
+         * Test of JSC.jsonEncode()
          */
-        jsonString : function() {
+        jsonEncode : function() {
             var val, ret, exp;
 
-            strictEqual(JSC.jsonString(), "", "undefined value");
-            strictEqual(JSC.jsonString(new Function()), "", "function object");
-            strictEqual(JSC.jsonString(function(){}), "", "function value");
-            strictEqual(JSC.jsonString(/test/), "", "regexp value");
-            strictEqual(JSC.jsonString(new RegExp()), "", "regexp object");
-            strictEqual(JSC.jsonString(new Date()), "", "date object");
+            strictEqual(JSC.jsonEncode(), "", "undefined value");
+            strictEqual(JSC.jsonEncode(new Function()), "", "function object");
+            strictEqual(JSC.jsonEncode(function(){}), "", "function value");
+            strictEqual(JSC.jsonEncode(/test/), "", "regexp value");
+            strictEqual(JSC.jsonEncode(new RegExp()), "", "regexp object");
+            strictEqual(JSC.jsonEncode(new Date()), "", "date object");
 
-            equal(JSC.jsonString(true), "true", "boolean 'true' value");
-            equal(JSC.jsonString(false), "false", "boolean 'false' value");
-            equal(JSC.jsonString(null), "null", "null value");
-            equal(JSC.jsonString(""), '""', "void string value");
-            equal(JSC.jsonString("test"), '"test"', "string value");
-            equal(JSC.jsonString(0), "0", "void number");
-            equal(JSC.jsonString(10), "10", "positive number");
-            equal(JSC.jsonString(-24), "-24", "negative number");
-            equal(JSC.jsonString(3.14), "3.14", "decimal number");
-            equal(JSC.jsonString(10/3), "" + (10/3), "decimal number");
-            equal(JSC.jsonString(Infinity), "null", "decimal non finite number");
-            equal(JSC.jsonString(3.14e-10), "3.14e-10", "decimal exposant number");
+            equal(JSC.jsonEncode(true), "true", "boolean 'true' value");
+            equal(JSC.jsonEncode(false), "false", "boolean 'false' value");
+            equal(JSC.jsonEncode(null), "null", "null value");
+            equal(JSC.jsonEncode(""), '""', "void string value");
+            equal(JSC.jsonEncode("test"), '"test"', "string value");
+            equal(JSC.jsonEncode(0), "0", "void number");
+            equal(JSC.jsonEncode(10), "10", "positive number");
+            equal(JSC.jsonEncode(-24), "-24", "negative number");
+            equal(JSC.jsonEncode(3.14), "3.14", "decimal number");
+            equal(JSC.jsonEncode(10/3), "" + (10/3), "decimal number");
+            equal(JSC.jsonEncode(Infinity), "null", "decimal non finite number");
+            equal(JSC.jsonEncode(3.14e-10), "3.14e-10", "decimal exposant number");
 
             val = [];
             exp = "[]";
-            ret = JSC.jsonString(val);
+            ret = JSC.jsonEncode(val);
             equal(ret, exp, "void array");
 
             val = [1,2,null,"3",true,false,undefined,function(){},/exp/,new Date(),{t:2},[1]];
             exp = '[1,2,null,"3",true,false,{"t":2},[1]]';
-            ret = JSC.jsonString(val);
+            ret = JSC.jsonEncode(val);
             equal(ret, exp, "full array");
 
             val = {};
             exp = "{}";
-            ret = JSC.jsonString(val);
+            ret = JSC.jsonEncode(val);
             equal(ret, exp, "void object");
 
             val = {
@@ -850,28 +850,28 @@
                 v12: [1]
             };
             exp = '{"v1":1,"v2":2,"v3":null,"v4":"3","v5":true,"v6":false,"v11":{"t":2},"v12":[1]}';
-            ret = JSC.jsonString(val);
+            ret = JSC.jsonEncode(val);
             equal(ret, exp, "full object");
         },
 
         /**
-         * Test of JSC.jsonParse()
+         * Test of JSC.jsonDecode()
          */
-        jsonParse : function(s) {
+        jsonDecode : function(s) {
             var throwed = false;
             try {
                 function _isNull(value, message) {
-                    strictEqual(JSC.jsonParse(value), null, message || (typeof value) + " value");
+                    strictEqual(JSC.jsonDecode(value), null, message || (typeof value) + " value");
                 }
 
                 function _isStrictEqual(value, expected, message) {
-                    strictEqual(JSC.jsonParse(value), expected, message);
-                    strictEqual(JSC.jsonParse("  " + value + "  "), expected, message + " (with padding)");
+                    strictEqual(JSC.jsonDecode(value), expected, message);
+                    strictEqual(JSC.jsonDecode("  " + value + "  "), expected, message + " (with padding)");
                 }
 
                 function _isDeepEqual(value, expected, message) {
-                    deepEqual(JSC.jsonParse(value), expected, message);
-                    deepEqual(JSC.jsonParse("  " + value + "  "), expected, message + " (with padding)");
+                    deepEqual(JSC.jsonDecode(value), expected, message);
+                    deepEqual(JSC.jsonDecode("  " + value + "  "), expected, message + " (with padding)");
                 }
 
                 _isNull();
@@ -914,7 +914,7 @@
             } catch(e) {
                 throwed = true;
             }
-            ok(!throwed, "JSC.jsonParse() must not throw any error");
+            ok(!throwed, "JSC.jsonDecode() must not throw any error");
         },
 
         /**
@@ -927,7 +927,7 @@
                     strictEqual(JSC.sort(value), value, message);
                 }
                 function _isDeepEqual(value, keys, expected, message) {
-                    var ret = JSC.sort(value, keys);
+                    var ret = JSC.sort(value, keys, true);
                     strictEqual(ret, value, message + ' - strict equal');
                     deepEqual(ret, expected, message + ' - deep equal');
                 }
@@ -955,19 +955,21 @@
                     10,
                     {name: "Pierre", age: 22, city: "Paris", toString: tos},
                     {name: "Frank", age: 22, city: "Berlin", toString: tos},
+                    undefined,
                     {name: "Pierre", age: 23, city: "Luxembourg", toString: tos},
                     {name: "Edgar", age: 27, city: "London", toString: tos},
                     null,
                     {name: "Patrick", age: 32, city: "Amsterdam", toString: tos},
                     {name: "Jean", age: 21, city: "Paris", toString: tos},
+                    undefined,
                     {Name: "Paul", age: 22, city: "Berlin", toString: tos},
                     {name: "Fritz", age: 23, City: "Berlin", toString: tos},
                     {name: "Ann", age: 23, city: "Luxembourg", toString: tos},
                     {name: "Charles", age: 45, city: "Luxembourg", toString: tos},
-                    20
+                    20,
                 ];
                 exp = [
-                    null,
+//                    null,
                     10,
                     20,
                     {name: "Fritz", age: 23, City: "Berlin", toString: tos},
@@ -1377,41 +1379,6 @@
             equal(o1.value, "hi", "Value of o1 must be affected by method call");
             equal(o2.value, "2", "Value of o2 must not be affected by method call");
             equal(o3.value, "3", "Value of o3 must not be affected by method call");
-        },
-
-        /**
-         * Test of JSC.innerAttach()
-         */
-        innerAttach : function() {
-            var fn, throwed = false;
-
-            try {
-                fn = JSC.innerAttach();
-            } catch(e) {
-                throwed = true;
-            }
-            ok(JSC.isFunction(fn), "JSC.innerAttach() must return a function even when no parameter is given");
-            ok(!throwed, "Call of JSC.innerAttach() without parameter must not throw an exception");
-
-            JSC.myValue = "";
-            JSC.myFunction = function(){
-                this.myValue = "myFunction";
-            }
-
-            fn = JSC.innerAttach("myFunction");
-            notEqual(fn, JSC.noop, "Attached function must not be equal to noop");
-            notEqual(fn, JSC.myFunction, "Attached function must not be equal to original one");
-            equal(fn.guid, JSC.myFunction.guid, "Attached function must have same id that original one");
-            equal(fn.guid, JSC.innerAttach("myFunction").guid, "Each attached function must have same id");
-            equal(fn, JSC.innerAttach("myFunction"), "Each attached function must be equal");
-            notEqual(fn, JSC.innerAttach("myFunction", true), "When rewriting is required, attached function must not be equal to old one");
-
-            equal(JSC.myValue, "", "Value before call");
-            fn();
-            equal(JSC.myValue, "myFunction", "Value after call");
-
-            delete JSC.myValue;
-            delete JSC.myFunction;
         },
 
         /**
@@ -1981,6 +1948,9 @@
                 },
                 fnValue : ""
             });
+            A.body = function() {
+                value = "body" + this.className;
+            };
             equal(JSC.type(A), "A", "Type of a class must be its name");
             equal(value, undefined, "Value must not be altered by class inheritance mechanism");
             equal(A.prototype.className, "A", "Prototype of className in class definition");
@@ -2054,6 +2024,9 @@
             ok(JSC.isFunction(a.initialize), "member method must exist");
             ok(JSC.isFunction(a.fn), "member method must exist");
             equal(a.value, undefined, "no member attribute");
+            value = "";
+            A();
+            equal(value, "bodyA", "class used as classical function");
 
             value = "";
             b = new B();
@@ -2068,6 +2041,9 @@
             ok(JSC.isFunction(b.initialize), "member method must exist");
             ok(JSC.isFunction(b.fn), "member method must exist");
             equal(b.value, "member", "member attribute must exist");
+            value = "";
+            B();
+            equal(value, "", "class used as classical function");
 
             value = "";
             c = new C();
@@ -2093,6 +2069,9 @@
             equal(c.value, "fn2", "member attribute must be altered by fn2");
             c.fn3();
             equal(c.value, "fn3", "member attribute must be altered by fn3");
+            value = "";
+            C();
+            equal(value, "", "class used as classical function");
 
             throwed = false;
             try {
@@ -2138,6 +2117,9 @@
             ok(JSC.isFunction(d.initialize), "member method must exist");
             ok(JSC.isFunction(d.fn), "member method must exist");
             equal(d.value, "member", "member attribute must exist");
+            value = "";
+            D();
+            equal(value, "", "class used as classical function");
 
             value = "";
             a.fn();
@@ -2236,6 +2218,9 @@
                     value = this.className + ".fn";
                 }
             });
+            A.body = function() {
+                value = "body" + this.className;
+            };
             equal(JSC.type(A), "A", "Type of a singleton class must be its name");
             equal(value, undefined, "value must not be altered by singleton class inheritance mechanism");
 
@@ -2319,6 +2304,9 @@
                 equal(A.getInstance(i), a, "only one instance must be created in a singleton");
                 equal(A.getInstance(i).guid, a.guid, "only one instance must be created in a singleton");
             }
+            value = "";
+            A();
+            equal(value, "bodyA", "class used as classical function");
 
             value = "";
             throwed = false;
@@ -2347,6 +2335,9 @@
                 equal(B.getInstance(i), b, "only one instance must be created in a singleton");
                 equal(B.getInstance(i).guid, b.guid, "only one instance must be created in a singleton");
             }
+            value = "";
+            B();
+            equal(value, "", "class used as classical function");
 
             value = "";
             throwed = false;
@@ -2386,6 +2377,9 @@
                 equal(C.getInstance(i), c, "only one instance must be created in a singleton");
                 equal(C.getInstance(i).guid, c.guid, "only one instance must be created in a singleton");
             }
+            value = "";
+            C();
+            equal(value, "", "class used as classical function");
 
             throwed = false;
             try {
@@ -2445,6 +2439,9 @@
                 equal(D.getInstance(i), d, "only one instance must be created in a singleton");
                 equal(D.getInstance(i).guid, d.guid, "only one instance must be created in a singleton");
             }
+            value = "";
+            D();
+            equal(value, "", "class used as classical function");
 
             value = "";
             a.fn();
@@ -2536,6 +2533,9 @@
                     value = this.className + ".fn";
                 }
             });
+            A.body = function() {
+                value = "body" + this.className;
+            };
             equal(JSC.type(A), "A", "Type of a multiton class must be its name");
             equal(value, undefined, "value must not be altered by multiton class inheritance mechanism");
 
@@ -2629,6 +2629,9 @@
                 equal(A.getInstance(i), aa, "only one instance must be created in a multiton for a given key");
                 equal(A.getInstance(i).guid, aa.guid, "only one instance must be created in a multiton for a given key");
             }
+            value = "";
+            A();
+            equal(value, "bodyA", "class used as classical function");
 
             value = "";
             throwed = false;
@@ -2667,6 +2670,9 @@
                 equal(B.getInstance(i), bb, "only one instance must be created in a multiton for a given key");
                 equal(B.getInstance(i).guid, bb.guid, "only one instance must be created in a multiton for a given key");
             }
+            value = "";
+            B();
+            equal(value, "", "class used as classical function");
 
             value = "";
             throwed = false;
@@ -2716,6 +2722,9 @@
                 equal(C.getInstance(i), cc, "only one instance must be created in a multiton for a given key");
                 equal(C.getInstance(i).guid, cc.guid, "only one instance must be created in a multiton for a given key");
             }
+            value = "";
+            C();
+            equal(value, "", "class used as classical function");
 
             throwed = false;
             try {
@@ -2785,6 +2794,9 @@
                 equal(D.getInstance(i), dd, "only one instance must be created in a multiton for a given key");
                 equal(D.getInstance(i).guid, dd.guid, "only one instance must be created in a multiton for a given key");
             }
+            value = "";
+            D();
+            equal(value, "", "class used as classical function");
 
             value = "";
             a.fn();
