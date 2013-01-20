@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.3.0 (JSC 0.3.0)
+ * Test Suite for JavaScript Class Library v0.4.0 (JSC 0.4.0)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.3.0", "Version of JSC must be defined");
+            equal(JSC.version, "0.4.0", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
@@ -256,32 +256,32 @@
         },
 
         /**
-         * Test of JSC.isInherited()
+         * Test of JSC.isOverloaded()
          */
-        isInherited : function() {
+        isOverloaded : function() {
             var A = JSC.Class("A");
 
-            equal(JSC.isInherited(), false, "An undefined value must not be considered as a function using inheritance");
-            equal(JSC.isInherited(undefined), false, "An undefined value must not be considered as a function using inheritance");
-            equal(JSC.isInherited(null), false, "A null value must not be considered as a function using inheritance");
-            equal(JSC.isInherited({}), false, "An object must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Object()), false, "An object must not be considered as a function using inheritance");
-            equal(JSC.isInherited([]), false, "An array must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Array()), false, "An array must not be considered as a function using inheritance");
-            equal(JSC.isInherited("function"), false, "A string must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new String()), false, "A string must not be considered as a function using inheritance");
-            equal(JSC.isInherited(10), false, "A number must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Number()), false, "A number must not be considered as a function using inheritance");
-            equal(JSC.isInherited(true), false, "A boolean must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Boolean()), false, "A boolean must not be considered as a function using inheritance");
-            equal(JSC.isInherited(/xyz/), false, "A regex must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new RegExp()), false, "A regex must not be considered as a function using inheritance");
-            equal(JSC.isInherited(function(){}), false, "A standard function must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new Function()), false, "A standard function must not be considered as a function using inheritance");
-            equal(JSC.isInherited(A), false, "A class definition must not be considered as a function using inheritance");
-            equal(JSC.isInherited(new A()), false, "A class instance must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(), false, "An undefined value must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(undefined), false, "An undefined value must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(null), false, "A null value must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded({}), false, "An object must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new Object()), false, "An object must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded([]), false, "An array must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new Array()), false, "An array must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded("function"), false, "A string must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new String()), false, "A string must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(10), false, "A number must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new Number()), false, "A number must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(true), false, "A boolean must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new Boolean()), false, "A boolean must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(/xyz/), false, "A regex must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new RegExp()), false, "A regex must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(function(){}), false, "A standard function must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new Function()), false, "A standard function must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(A), false, "A class definition must not be considered as a function using inheritance");
+            equal(JSC.isOverloaded(new A()), false, "A class instance must not be considered as a function using inheritance");
 
-            equal(JSC.isInherited(JSC.override(function(){this.inherited();}, function(){})), true, "An overriding function must be considered as a function using inheritance");
+            equal(JSC.isOverloaded(JSC.overload(function(){this.inherited();}, function(){})), true, "An overriding function must be considered as a function using inheritance");
         },
 
         /**
@@ -1441,77 +1441,77 @@
         },
 
         /**
-         * Test of JSC.override()
+         * Test of JSC.overload()
          */
-        override : function() {
-            var value, o1 = {}, o2 = {}, o3 = {}, o4 = {}, reOverride = /\binherited\b/, fn = function(p) {
+        overload : function() {
+            var value, o1 = {}, o2 = {}, o3 = {}, o4 = {}, reOverload = /\binherited\b/, fn = function(p) {
                 value = p + "1";
             };
 
-            equal(JSC.override(), undefined, "Overriding for nothing must return nothing");
-            equal(JSC.override(fn), fn, "When no overriding, original method must be returned");
-            equal(JSC.override(fn, fn), fn, "Override of a method by itself must not produce an overriding method");
-            equal(JSC.override(value = ""), value, "Overriding with a string value must return the value unaltered");
-            equal(JSC.override(value = new String()), value, "Overriding with a string value must return the value unaltered");
-            equal(JSC.override(value = true), value, "Overriding with a boolean value must return the value unaltered");
-            equal(JSC.override(value = new Boolean()), value, "Overriding with a boolean value must return the value unaltered");
-            equal(JSC.override(value = {}), value, "Overriding with an objet value must return the value unaltered");
-            equal(JSC.override(value = new Object()), value, "Overriding with an objet value must return the value unaltered");
-            equal(JSC.override(value = []), value, "Overriding with an array value must return the value unaltered");
-            equal(JSC.override(value = new Array()), value, "Overriding with an array value must return the value unaltered");
-            equal(JSC.override(value = /xyz/), value, "Overriding with a RegExp value must return the value unaltered");
-            equal(JSC.override(value = new RegExp()), value, "Overriding with a RegExp value must return the value unaltered");
-            equal(JSC.override(value = 10), value, "Overriding with a number value must return the value unaltered");
-            equal(JSC.override(value = new Number()), value, "Overriding with a number value must return the value unaltered");
+            equal(JSC.overload(), undefined, "Overriding for nothing must return nothing");
+            equal(JSC.overload(fn), fn, "When no overriding, original method must be returned");
+            equal(JSC.overload(fn, fn), fn, "Overload of a method by itself must not produce an overriding method");
+            equal(JSC.overload(value = ""), value, "Overriding with a string value must return the value unaltered");
+            equal(JSC.overload(value = new String()), value, "Overriding with a string value must return the value unaltered");
+            equal(JSC.overload(value = true), value, "Overriding with a boolean value must return the value unaltered");
+            equal(JSC.overload(value = new Boolean()), value, "Overriding with a boolean value must return the value unaltered");
+            equal(JSC.overload(value = {}), value, "Overriding with an objet value must return the value unaltered");
+            equal(JSC.overload(value = new Object()), value, "Overriding with an objet value must return the value unaltered");
+            equal(JSC.overload(value = []), value, "Overriding with an array value must return the value unaltered");
+            equal(JSC.overload(value = new Array()), value, "Overriding with an array value must return the value unaltered");
+            equal(JSC.overload(value = /xyz/), value, "Overriding with a RegExp value must return the value unaltered");
+            equal(JSC.overload(value = new RegExp()), value, "Overriding with a RegExp value must return the value unaltered");
+            equal(JSC.overload(value = 10), value, "Overriding with a number value must return the value unaltered");
+            equal(JSC.overload(value = new Number()), value, "Overriding with a number value must return the value unaltered");
 
             value = "";
-            o1.fn = JSC.override(fn);
-            o2.fn = JSC.override(function(p) {
+            o1.fn = JSC.overload(fn);
+            o2.fn = JSC.overload(function(p) {
                 this.inherited(p);
                 value += "2";
             }, o1.fn);
-            o3.fn = JSC.override(function(p) {
+            o3.fn = JSC.overload(function(p) {
                 this.inherited(p);
                 value += "3";
             }, o2.fn);
-            o4.fn = JSC.override(function(p) {
+            o4.fn = JSC.overload(function(p) {
                 value += p + "4";
             }, o3.fn);
 
             value = "";
             equal(value, "", "Value before call of initial method");
             equal(o1.fn, fn, "Initial method must not be altered");
-            ok(!JSC.isInherited(o1.fn), "Method must not be tagged as overriding");
-            ok(!reOverride.test(o1.fn), "Initial method must not call inherited");
+            ok(!JSC.isOverloaded(o1.fn), "Method must not be tagged as overriding");
+            ok(!reOverload.test(o1.fn), "Initial method must not call inherited");
             o1.fn("test");
             equal(value, "test1", "Call of initial method");
 
             value = "";
             equal(value, "", "Value before call of 2 levels method");
             notEqual(o2.fn, fn, "2 levels method must be altered");
-            ok(JSC.isInherited(o2.fn), "Method must be tagged as overriding");
-            ok(reOverride.test(o2.fn), "2 levels method must call inherited");
+            ok(JSC.isOverloaded(o2.fn), "Method must be tagged as overriding");
+            ok(reOverload.test(o2.fn), "2 levels method must call inherited");
             o2.fn("try");
             equal(value, "try12", "Call of 2 levels method");
 
             value = "";
             equal(value, "", "Value before call of 3 levels method");
             notEqual(o3.fn, fn, "3 levels method must be altered");
-            ok(JSC.isInherited(o3.fn), "Method must be tagged as overriding");
-            ok(reOverride.test(o3.fn), "3 levels method must call inherited");
+            ok(JSC.isOverloaded(o3.fn), "Method must be tagged as overriding");
+            ok(reOverload.test(o3.fn), "3 levels method must call inherited");
             o3.fn("hello");
             equal(value, "hello123", "Call of 3 levels method");
 
             value = "";
             equal(value, "", "Value before call of 4 levels method");
             notEqual(o4.fn, fn, "4 levels method must be altered");
-            ok(!JSC.isInherited(o4.fn), "Method must not be tagged as overriding");
-            ok(!reOverride.test(o4.fn), "4 levels method must not call inherited");
+            ok(!JSC.isOverloaded(o4.fn), "Method must not be tagged as overriding");
+            ok(!reOverload.test(o4.fn), "4 levels method must not call inherited");
             o4.fn("final");
             equal(value, "final4", "Call of 4 levels method");
 
             fn = function() {this.inherited();}
-            equal(JSC.override(fn, fn), fn, "Override of a method by itself must not produce an overriding method, even if inheritance is invoked !");
+            equal(JSC.overload(fn, fn), fn, "Overload of a method by itself must not produce an overriding method, even if inheritance is invoked !");
         },
 
         /**
@@ -1564,7 +1564,7 @@
             }, A);
             ok(JSC.isFunction(b), "Class.extend() must return the class");
             equal(b, B, "Resturn of Class.extend() must be equal to the class");
-            ok(JSC.isInherited(B.prototype.f), "Method must be tagged as overriding");
+            ok(JSC.isOverloaded(B.prototype.f), "Method must be tagged as overriding");
 
             value = "";
             a = new A();
@@ -1967,7 +1967,7 @@
             }));
             equal(JSC.type(B), "B", "Type of a class must be its name");
             equal(value, undefined, "Value must not be altered by class inheritance mechanism");
-            ok(JSC.isInherited(B.prototype.initialize), "Method must be tagged as overriding");
+            ok(JSC.isOverloaded(B.prototype.initialize), "Method must be tagged as overriding");
             equal(B.prototype.className, "B", "Prototype of className in class definition");
 
             value = undefined;
@@ -2010,8 +2010,8 @@
             equal(JSC.type(D), "D", "Type of a class must be its name");
             equal(D.className, "D", "Class name must be equal to name parameter, even if given in definition list");
             equal(value, undefined, "value must not be altered by class inheritance mechanism");
-            ok(JSC.isInherited(D.prototype.initialize), "method must be tagged as overriding");
-            ok(JSC.isInherited(D.prototype.fn), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(D.prototype.initialize), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(D.prototype.fn), "method must be tagged as overriding");
             equal(D.prototype.className, "D", "Prototype of className in class definition");
 
             value = "";
@@ -2236,7 +2236,7 @@
             }));
             equal(JSC.type(B), "B", "Type of a singleton class must be its name");
             equal(value, undefined, "value must not be altered by singleton class inheritance mechanism");
-            ok(JSC.isInherited(B.prototype.initialize), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(B.prototype.initialize), "method must be tagged as overriding");
 
             value = undefined;
             C = JSC.Singleton({
@@ -2277,8 +2277,8 @@
             equal(JSC.type(D), "D", "Type of a singleton class must be its name");
             equal(D.className, "D", "Class name must be equal to name parameter, even if given in definition list");
             equal(value, undefined, "value must not be altered by singleton class inheritance mechanism");
-            ok(JSC.isInherited(D.prototype.initialize), "method must be tagged as overriding");
-            ok(JSC.isInherited(D.prototype.fn), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(D.prototype.initialize), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(D.prototype.fn), "method must be tagged as overriding");
 
             value = "";
             throwed = false;
@@ -2551,7 +2551,7 @@
             }));
             equal(JSC.type(B), "B", "Type of a multiton class must be its name");
             equal(value, undefined, "value must not be altered by multiton class inheritance mechanism");
-            ok(JSC.isInherited(B.prototype.initialize), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(B.prototype.initialize), "method must be tagged as overriding");
 
             value = undefined;
             C = JSC.Multiton({
@@ -2592,8 +2592,8 @@
             equal(JSC.type(D), "D", "Type of a multiton class must be its name");
             equal(D.className, "D", "Class name must be equal to name parameter, even if given in definition list");
             equal(value, undefined, "value must not be altered by multiton class inheritance mechanism");
-            ok(JSC.isInherited(D.prototype.initialize), "method must be tagged as overriding");
-            ok(JSC.isInherited(D.prototype.fn), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(D.prototype.initialize), "method must be tagged as overriding");
+            ok(JSC.isOverloaded(D.prototype.fn), "method must be tagged as overriding");
 
             value = "";
             throwed = false;
@@ -2990,6 +2990,83 @@
             ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
             equal(A.version, version, "Static member a new class must be equal to expected value");
             equal(a.value, value, "Instance must have member affected from given definition");
+        },
+
+        /**
+         * Test of JSC plugins implementation : JSC.install(), JSC.isInstalled(), JSC.uninstall()
+         */
+        Plugins : function() {
+            var value, old, plugin, pluginName = "myPlugin";
+            try {
+                // named plugin, two params
+                ok(!JSC.isInstalled(pluginName), pluginName + " must not be installed !");
+                ok(JSC.install(pluginName, {
+                    fn : function(){value = pluginName;}
+                }), "Installation of plugin " + pluginName + " must be successusfully done !");
+                ok(JSC.isInstalled(pluginName), pluginName + " must be installed !");
+                ok("undefined" !== typeof(JSC[pluginName]), pluginName + " must be accessible !");
+                ok("undefined" !== typeof(JSC[pluginName].fn), pluginName + ".fn must be accessible !");
+                value = "";
+                JSC[pluginName].fn();
+                equal(value, pluginName, "Value must be altered by plugin !");
+                ok(JSC.uninstall(pluginName), "Uninstallation of plugin " + pluginName + " must be successusfully done !");
+                ok(!JSC.isInstalled(pluginName), pluginName + " must not be installed !");
+                ok("undefined" === typeof(JSC[pluginName]), pluginName + " must not be accessible anymore !");
+
+                // named plugin, single params
+                plugin = {
+                    pluginName: pluginName,
+                    fn : function(){value = pluginName;}
+                };
+                ok(JSC.install(plugin), "Installation of plugin " + pluginName + " must be successusfully done !");
+                ok(JSC.isInstalled(plugin), pluginName + " must be installed !");
+                ok("undefined" !== typeof(JSC[pluginName]), pluginName + " must be accessible !");
+                ok("undefined" !== typeof(JSC[pluginName].fn), pluginName + ".fn must be accessible !");
+                value = "";
+                JSC[pluginName].fn();
+                equal(value, pluginName, "Value must be altered by plugin !");
+                ok(JSC.uninstall(plugin), "Uninstallation of plugin " + pluginName + " must be successusfully done !");
+                ok(!JSC.isInstalled(plugin), pluginName + " must not be installed !");
+                ok("undefined" === typeof(JSC[pluginName]), pluginName + " must not be accessible anymore !");
+
+                // anonymous plugin, single params
+                old = JSC.id;
+                plugin = {
+                    id : function(){return 0;},
+                    fn : function(){value = pluginName;}
+                };
+                ok(JSC.install(plugin), "Installation of anonymous plugin must be successusfully done !");
+                notEqual(JSC.id, old, "JSC.id must have been overloaded by plugin !");
+                ok(JSC.isInstalled(plugin), "Anonymous must be installed !");
+                ok("undefined" !== typeof(JSC.fn), "JSC.fn must be accessible !");
+                value = "";
+                JSC.fn();
+                equal(value, pluginName, "Value must be altered by plugin !");
+                ok(JSC.uninstall(plugin), "Uninstallation of anonymous plugin must be successusfully done !");
+                equal(JSC.id, old, "JSC.id must have been restored by plugin uninstallation !");
+                ok("undefined" === typeof(JSC.fn), "JSC.fn must be removed !");
+                ok(!JSC.isInstalled(plugin), "Anonymous must not be installed !");
+
+                // anonymous plugin, two params
+                old = JSC.jsonData;
+                plugin = {
+                    jsonData : function(){return {};},
+                    fn : function(){value = pluginName;}
+                };
+                ok(JSC.install(undefined, plugin), "Installation of anonymous plugin must be successusfully done !");
+                notEqual(JSC.jsonData, old, "JSC.jsonData must have been overloaded by plugin !");
+                ok(JSC.isInstalled(undefined, plugin), "Anonymous must be installed !");
+                ok("undefined" !== typeof(JSC.fn), "JSC.fn must be accessible !");
+                value = "";
+                JSC.fn();
+                equal(value, pluginName, "Value must be altered by plugin !");
+                ok(JSC.uninstall(undefined, plugin), "Uninstallation of anonymous plugin must be successusfully done !");
+                equal(JSC.jsonData, old, "JSC.jsonData must have been restored by plugin uninstallation !");
+                ok("undefined" === typeof(JSC.fn), "JSC.fn must be removed !");
+                ok(!JSC.isInstalled(undefined, plugin), "Anonymous must not be installed !");
+            } catch (e) {
+                ok(false, "No exception must be thrown when use of JSC plugin implementation !");
+            }
         }
     };
     new TestSuite(suite, true);
