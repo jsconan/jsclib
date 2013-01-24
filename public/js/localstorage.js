@@ -7,27 +7,52 @@
  * Released under the MIT license
  */
 (function(JSC, globalContext){
-    var localstorage = {
+    var
+        // load the "localStorage" entry, or stash its absence by a dummy object
+        _localData = localStorage || {},
+
+        // extract or create method to read a value from localStorage
+        _getItem = _localData.getItem || function(name) {
+            return this[name];
+        },
+
+        // extract or create method to write a value to localStorage
+        _setItem = _localData.setItem || function(name, value) {
+            this[name] = value;
+        },
+
+        // extract or create method to remove a value from localStorage
+        _removeItem = _localData.removeItem || function(name) {
+            this[name] && delete this[name];
+        };
+
+    // Class definition with multiton pattern to wrap access to localStorage
+    var LocalStorage = {
         /**
-         * Name of plugin
+         * Name of class
          *
          * @type String
          */
-        pluginName : "localStorage",
+        className : "LocalStorage",
 
         /**
          * Init the localStorage wrapper.
          *
          * @param {String} name Name of the entry point in the local storage. By default use the library name (JSC).
-         * @return {JSC.localStorage} Plugin entry point
          */
-        init : function(name) {
-            if( globalContext.localStorage ) {
-                this.name = name || this.name;
-                this.data = JSC.jsonDecode(globalContext.localStorage[this.name]) || {};
-                globalContext.addEventListener("unload", JSC.attach(this, "store"));
-            }
-            return this;
+        initialize : function(name) {
+            this.name = name || this.name;
+            this.load();
+            localStorage && this.bindEvent(globalContext, "unload", JSC.attach(this, "store"));
+        },
+
+        /**
+         * Load data from local storage
+         *
+          * @return {JSC.localStorage} Plugin entry point
+         */
+        load : function() {
+            this.data = JSC.jsonDecode(_getItem.call(_localData, this.name)) || {};
         },
 
         /**
@@ -37,9 +62,9 @@
          */
         store : function(){
             if( JSC.isEmptyObject(this.data) ) {
-                globalContext.localStorage[this.name] && delete globalContext.localStorage[this.name];
+                _removeItem.call(_localData, this.name);
             } else {
-                globalContext.localStorage[this.name] = JSC.jsonEncode(this.data);
+                _setItem.call(_localData, this.name, JSC.jsonEncode(this.data));
             }
         },
 
@@ -87,6 +112,21 @@
         },
 
         /**
+         * Bind an event handler on an element for particular event name
+         *
+         * @param {Element} element Element on which bind the event
+         * @param {String} eventName Name of the event to bind
+         * @param {Function} eventHandler Handler to call when event is fired
+         */
+        bindEvent : function(element, eventName, eventHandler) {
+            if( element.addEventListener ) {
+                element.addEventListener(eventName, eventHandler, false);
+            } else if( element.attachEvent ) {
+                element.attachEvent("on" + eventName, eventHandler);
+            }
+        },
+
+        /**
          * Name of the data set in local storage
          *
          * @type String
@@ -100,5 +140,8 @@
          */
         data : null
     };
-    JSC.install(localstorage);
+
+    // build and declare the class
+    JSC.localStorage = JSC.Multiton(LocalStorage);
+    JSC.localStorage.body = JSC.localStorage.getInstance;
 })(JSC, this);

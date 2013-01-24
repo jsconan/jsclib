@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.4.0 (JSC 0.4.0)
+ * Test Suite for JavaScript Class Library v0.4.1 (JSC 0.4.1)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.4.0", "Version of JSC must be defined");
+            equal(JSC.version, "0.4.1", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
@@ -2917,6 +2917,8 @@
             equal(A.version, version, "Static member a new class must be equal to expected value");
             equal(a.value, value, "Instance must have member affected from given definition");
             ok(a === b && a === c && a.guid === b.guid && a.guid === c.guid, "Each call of getInstance must return same instance");
+            ok("undefined" !== typeof A.body, "A class body must be defined on a singleton !");
+            strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
 
             throwed = false;
             try {
@@ -2949,6 +2951,8 @@
             ok(c === d && c.guid === d.guid, "Each call of getInstance for key 2 must return same instance");
             ok(e === f && e.guid === f.guid, "Each call of getInstance for key 3 must return same instance");
             ok(a !== c && a !== e && c !== e && a.guid !== c.guid && a.guid !== e.guid && c.guid !== e.guid, "Calls of getInstance for different keys must return different instances");
+            ok("undefined" !== typeof A.body, "A class body must be defined on a multiton !");
+            strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
 
             throwed = false;
             try {
@@ -2990,6 +2994,26 @@
             ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
             equal(A.version, version, "Static member a new class must be equal to expected value");
             equal(a.value, value, "Instance must have member affected from given definition");
+        },
+
+        /**
+         * Test of JSC.Self()
+         */
+        Self : function() {
+            var A, B;
+
+            A = JSC.Class("myClass");
+            ok("undefined" === typeof A.body, "No class body must exists !");
+            B = JSC.Self(A);
+            strictEqual(A, B, "JSC.Self() must return the same class that the one given");
+            ok("undefined" === typeof B.body, "No getInstance, no class body !");
+
+            A.getInstance = function(){
+                return this.className
+            };
+            B = JSC.Self(A);
+            strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+            equal(B(), A.className, "Class must be called as a factory");
         },
 
         /**
