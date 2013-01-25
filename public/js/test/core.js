@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.4.1 (JSC 0.4.1)
+ * Test Suite for JavaScript Class Library v0.4.2 (JSC 0.4.2)
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -14,7 +14,7 @@
         JSC : function() {
             equal(typeof JSC, "object", "JSC must be an object");
             equal(JSC.className, "JSC", "Class name of JSC must be defined");
-            equal(JSC.version, "0.4.1", "Version of JSC must be defined");
+            equal(JSC.version, "0.4.2", "Version of JSC must be defined");
             equal(JSC.guid, 0, "GUID of JSC must be defined");
         },
 
@@ -1746,6 +1746,52 @@
         },
 
         /**
+         * Test of JSC.self()
+         */
+        self : function() {
+            var A, B;
+
+            try {
+                A = JSC.self();
+                ok("undefined" === typeof A, "When called without argument, JSC.self() must return undefined");
+
+                A = JSC.self("");
+                ok("" === A, "When called with wrong argument, JSC.self() must return the given argument");
+
+                A = JSC.Class("myClass");
+                ok("undefined" === typeof A.body, "No class body must exists !");
+                B = JSC.self(A);
+                strictEqual(A, B, "JSC.self() must return the same class that the one given");
+                ok("undefined" === typeof B.body, "No getInstance method, no class body !");
+
+                A.getInstance = function(){
+                    return this.className;
+                };
+                B = JSC.self(A);
+                strictEqual(A, B, "JSC.self() must return the same class that the one given");
+                strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+                equal(A(), A.className, "Class must be called as a factory");
+                B = JSC.self(A, 'install');
+                strictEqual(A, B, "JSC.self() must return the same class that the one given");
+                ok("undefined" === typeof B.body, "No install method, no class body !");
+
+                A.install = function(){
+                    return "installed";
+                };
+                B = JSC.self(A);
+                strictEqual(A, B, "JSC.self() must return the same class that the one given");
+                strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+                equal(A(), A.className, "Class must be called as a factory");
+                B = JSC.self(A, 'install');
+                strictEqual(A, B, "JSC.self() must return the same class that the one given");
+                strictEqual(A.install, A.body, "Class body must be equal to install");
+                equal(A(), "installed", "Class must be called as a factory");
+            } catch(e) {
+                ok(false, "Call of JSC.self() must not throw error in any way");
+            }
+        },
+
+        /**
          * Test of JSC.instanceOf()
          */
         instanceOf : function() {
@@ -2197,6 +2243,11 @@
             try {
                 A = JSC.Singleton();
                 ok(JSC.isFunction(A), "Singleton class definition must be returned when no parameter is given to builder");
+                ok("undefined" !== typeof A.body, "A class body must be defined on a singleton !");
+                strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+                a = A();
+                ok(a, "an instance must be built from factory");
+                ok(a instanceof A, "instance build from factory must be an instance of singleton class");
             } catch(e) {
                 ok(false, "Singleton class builder must be call without parameters");
             }
@@ -2205,6 +2256,11 @@
                 A = JSC.Singleton("AA");
                 ok(JSC.isFunction(A), "Singleton class definition must be returned when only name parameter is given to builder");
                 equal(JSC.type(A), "AA", "Type of a singleton class must be its name");
+                ok("undefined" !== typeof A.body, "A class body must be defined on a singleton !");
+                strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+                a = A();
+                ok(a, "an instance must be built from factory");
+                ok(a instanceof A, "instance build from factory must be an instance of singleton class");
             } catch(e) {
                 ok(false, "Singleton class builder must be call with only name parameter");
             }
@@ -2280,6 +2336,7 @@
             ok(JSC.isOverloaded(D.prototype.initialize), "method must be tagged as overriding");
             ok(JSC.isOverloaded(D.prototype.fn), "method must be tagged as overriding");
 
+            a = undefined;
             value = "";
             throwed = false;
             try {
@@ -2512,6 +2569,11 @@
             try {
                 A = JSC.Multiton();
                 ok(JSC.isFunction(A), "Multiton class definition must be returned when no parameter is given to builder");
+                ok("undefined" !== typeof A.body, "A class body must be defined on a multiton !");
+                strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+                a = A();
+                ok(a, "an instance must be built from factory");
+                ok(a instanceof A, "instance build from factory must be an instance of multiton class");
             } catch(e) {
                 ok(false, "Multiton class builder must be call without parameters");
             }
@@ -2520,6 +2582,11 @@
                 A = JSC.Multiton("AA");
                 ok(JSC.isFunction(A), "Multiton class definition must be returned when only name parameter is given to builder");
                 equal(JSC.type(A), "AA", "Type of a multiton class must be its name");
+                ok("undefined" !== typeof A.body, "A class body must be defined on a multiton !");
+                strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+                a = A();
+                ok(a, "an instance must be built from factory");
+                ok(a instanceof A, "instance build from factory must be an instance of multiton class");
             } catch(e) {
                 ok(false, "Multiton class builder must be call with only name parameter");
             }
@@ -2595,6 +2662,7 @@
             ok(JSC.isOverloaded(D.prototype.initialize), "method must be tagged as overriding");
             ok(JSC.isOverloaded(D.prototype.fn), "method must be tagged as overriding");
 
+            a = undefined;
             value = "";
             throwed = false;
             try {
@@ -2919,6 +2987,9 @@
             ok(a === b && a === c && a.guid === b.guid && a.guid === c.guid, "Each call of getInstance must return same instance");
             ok("undefined" !== typeof A.body, "A class body must be defined on a singleton !");
             strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+            a = A();
+            ok(a, "an instance must be built from factory");
+            ok(a instanceof A, "instance build from factory must be an instance of singleton class");
 
             throwed = false;
             try {
@@ -2953,6 +3024,9 @@
             ok(a !== c && a !== e && c !== e && a.guid !== c.guid && a.guid !== e.guid && c.guid !== e.guid, "Calls of getInstance for different keys must return different instances");
             ok("undefined" !== typeof A.body, "A class body must be defined on a multiton !");
             strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
+            a = A();
+            ok(a, "an instance must be built from factory");
+            ok(a instanceof A, "instance build from factory must be an instance of multiton class");
 
             throwed = false;
             try {
@@ -2994,26 +3068,6 @@
             ok("undefined" !== typeof A.version, "Class must have static member affected from given definition");
             equal(A.version, version, "Static member a new class must be equal to expected value");
             equal(a.value, value, "Instance must have member affected from given definition");
-        },
-
-        /**
-         * Test of JSC.Self()
-         */
-        Self : function() {
-            var A, B;
-
-            A = JSC.Class("myClass");
-            ok("undefined" === typeof A.body, "No class body must exists !");
-            B = JSC.Self(A);
-            strictEqual(A, B, "JSC.Self() must return the same class that the one given");
-            ok("undefined" === typeof B.body, "No getInstance, no class body !");
-
-            A.getInstance = function(){
-                return this.className
-            };
-            B = JSC.Self(A);
-            strictEqual(A.getInstance, A.body, "Class body must be equal to getInstance");
-            equal(B(), A.className, "Class must be called as a factory");
         },
 
         /**
