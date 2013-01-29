@@ -1,7 +1,7 @@
 /*!
  * LocalStorage Wrapper
  *
- * Plugin for JavaScript Class Library v0.4.0 and above
+ * Plugin for JavaScript Class Library v0.5.0 and above
  *
  * Copyright 2012 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -23,7 +23,7 @@
 
         // extract or create method to remove a value from localStorage
         _removeItem = _localData.removeItem || function(name) {
-            this[name] && delete this[name];
+            "undefined" !== typeof this[name] && delete this[name];
         };
 
     // Class definition with multiton pattern to wrap access to localStorage
@@ -93,6 +93,7 @@
         /**
          * Remove an entry from local storage wrapper.
          *
+         * @param {String} name Name of the entry to remove
          * @return {Object} Return the removed data
          */
         remove : function(name) {
@@ -142,6 +143,5 @@
     };
 
     // build and declare the class
-    JSC.localStorage = JSC.Multiton(LocalStorage);
-    JSC.localStorage.body = JSC.localStorage.getInstance;
+    JSC.localStorage = JSC.multiton(LocalStorage);
 })(JSC, this);
