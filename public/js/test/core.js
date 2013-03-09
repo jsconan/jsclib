@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.5.1 (JSC 0.5.1)
+ * Test Suite for JavaScript Class Library v0.5.2 (JSC 0.5.2)
  *
  * Copyright 2013 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -9,7 +9,7 @@
         /**
          * Test version
          */
-        versionToTest = "0.5.1",
+        versionToTest = "0.5.2",
 
         /**
          * The default name assigned to anonymous classes
@@ -1150,7 +1150,7 @@
              * Test of JSC.globalize()
              */
             globalize : function() {
-                var ret, exportable = "exported";
+                var ret, valueName, exportable = "exported";
 
                 // call without arguments
                 notThrow(function(){
@@ -1162,13 +1162,14 @@
                 ok("undefined" == typeof myTestExport, "Not exported variable must not exist in global context !");
 
                 // export a string
-                ret = JSC.globalize("myTestExport", exportable);
+                valueName = "myTestExport";
+                ret = JSC.globalize(valueName, exportable);
                 strictEqual(ret, exportable, "JSC.globalize() must return the given value");
                 ok("undefined" != typeof myTestExport, "Exported variable must exist in global context !");
                 strictEqual(myTestExport, exportable, "Exported variable must equal source value !");
 
                 // remove global string variable
-                ret = JSC.globalize("myTestExport");
+                ret = JSC.globalize(valueName);
                 strictEqual(ret, exportable, "JSC.globalize() must return the removed value");
                 ok("undefined" == typeof myTestExport, "The variable must be removed from global context !");
 
@@ -1181,7 +1182,7 @@
                 strictEqual(classExport, exportable, "Exported class must equal source value !");
 
                 // remove global object variable
-                ret = JSC.globalize("classExport");
+                ret = JSC.globalize(exportable.className);
                 strictEqual(ret, exportable, "JSC.globalize() must return the removed value");
                 ok("undefined" == typeof classExport, "The variable must be removed from global context !");
 
@@ -1196,6 +1197,24 @@
                 ret = JSC.globalize("true");
                 strictEqual(ret, exportable, "JSC.globalize() must return the removed value");
                 strictEqual(JSC.global("true"), undefined, "The variable must be removed from global context !");
+
+                // export a namespace value
+                exportable = "test";
+                valueName = "JSC.global.exported";
+                ret = JSC.globalize(valueName, exportable);
+                strictEqual(ret, exportable, "JSC.globalize() must return the given value");
+                strictEqual(JSC.global(valueName), exportable, "Exported value must equal source value !");
+
+                // remove a namespace value
+                ret = JSC.globalize(valueName);
+                strictEqual(ret, exportable, "JSC.globalize() must return the removed value");
+                strictEqual(JSC.global(valueName), undefined, "The variable must be removed from global context !");
+
+                // export a namespace value into an unknown context
+                valueName = "JSC.unknown.exported";
+                ret = JSC.globalize(valueName, exportable);
+                strictEqual(ret, undefined, "JSC.globalize() must return undefined value");
+                strictEqual(JSC.global(valueName), undefined, "Value must not be exported !");
             },
 
             /**
@@ -3074,7 +3093,7 @@
         // with no body and no getInstance
         returnedClass = theClass.self();
         testClassIntegrity(theClass, returnedClass, className);
-        strictEqual(theClass.body, undefined, ctxMsg + "No body must be present after no one was assigned and no getInstance method is present");
+        ok(JSC.isFunction(theClass.body),ctxMsg + "A default body must be present after no one was assigned and no getInstance method is present");
 
         // with no body but getInstance
         theClass.getInstance = newBody;
