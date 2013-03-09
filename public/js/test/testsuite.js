@@ -3,7 +3,7 @@
  *
  * Designed for QUnit
  *
- * Copyright 2012 Jean-Sebastien CONAN
+ * Copyright 2013 Jean-Sebastien CONAN
  * Released under the MIT license
  */
 (function(){
