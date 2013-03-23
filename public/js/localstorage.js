@@ -1,8 +1,5 @@
 /*!
- * LocalStorage Wrapper
- *
- * Plugin for JavaScript Class Library v0.5.0 and above
- *
+ * LocalStorage Wrapper (use JSC v0.5.0)
  * Copyright 2013 Jean-Sebastien CONAN
  * Released under the MIT license
  */

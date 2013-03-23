@@ -1,5 +1,5 @@
 /*!
- * Test Suite for JavaScript Class Library v0.5.2 (JSC 0.5.2)
+ * Test Suite for JavaScript Class Library v0.5.3 (JSC 0.5.3)
  *
  * Copyright 2013 Jean-Sebastien CONAN
  * Released under the MIT license
@@ -9,7 +9,7 @@
         /**
          * Test version
          */
-        versionToTest = "0.5.2",
+        versionToTest = "0.5.3",
 
         /**
          * The default name assigned to anonymous classes
@@ -32,7 +32,7 @@
              */
             JSC : function() {
                 // identity check for JSC library entry point
-                ok("function" === typeof JSC, "JSC must be a function");
+                ok("object" === typeof JSC, "JSC must be an object");
                 strictEqual(JSC.className, "JSC", "Class name of JSC must be defined");
                 strictEqual(JSC.version, versionToTest, "Version of JSC must be defined and comply to the needed one");
                 strictEqual(JSC.guid, 0, "GUID of JSC must be defined and comply to the needed one");
@@ -43,15 +43,18 @@
                         ok("function" === typeof suite[name], "A test must be prepared for JSC." + name + "()");
                     }
                 }
+            },
 
-                // the JSC library entry point cannot be used as a class to instantiate an object
-                mustThrow(function(){
-                    new JSC();
-                }, "JSC cannot be used as a class");
-
+            /**
+             * Test of JSC.create()
+             */
+            create : function() {
                 // apply standard class tests with JSC default class builder
-                testClassStandardSimpliest(JSC, "JSC()");
-                testClassStandard(JSC);
+                var generator = getIt(function(){
+                    return JSC.create.apply(JSC, arguments);
+                });
+                testClassStandardSimpliest(generator, "JSC.create()");
+                testClassStandard(generator);
             },
 
             /**
@@ -121,7 +124,7 @@
              * Test of JSC.type()
              */
             type : function() {
-                var undef, className = "aClass", aClass = JSC(className);
+                var undef, className = "aClass", aClass = JSC.create(className);
 
                 // type of undefined value
                 equal(JSC.type(), "undefined", "Type of undefined");
@@ -177,7 +180,7 @@
              * Test of JSC.isFunction()
              */
             isFunction : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not a function
                 equal(JSC.isFunction(), false, "An undefined value must not be considered as a function");
@@ -207,7 +210,7 @@
              * Test of JSC.isClass()
              */
             isClass : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not a class
                 equal(JSC.isClass(), false, "An undefined value must not be considered as a class");
@@ -237,7 +240,7 @@
              * Test of JSC.isInstance()
              */
             isInstance : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not an instance of a generated class by the library
                 equal(JSC.isInstance(), false, "An undefined value must not be considered as a class instance instance");
@@ -267,7 +270,7 @@
              * Test of JSC.isAbstract()
              */
             isAbstract : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not an abstract method
                 equal(JSC.isAbstract(), false, "An undefined value must not be considered as an abstract function");
@@ -299,7 +302,7 @@
              * Test of JSC.isAttached()
              */
             isAttached : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not an attached method
                 equal(JSC.isAttached(), false, "An undefined value must not be considered as an attached function");
@@ -335,7 +338,7 @@
              * Test of JSC.isOverloaded()
              */
             isOverloaded : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not an overloaded method
                 equal(JSC.isOverloaded(), false, "An undefined value must not be considered as an overloaded function");
@@ -366,7 +369,7 @@
              * Test of JSC.isPlugin()
              */
             isPlugin : function() {
-                var className = "aClass", aClass = JSC(className), plugin = getIt({
+                var className = "aClass", aClass = JSC.create(className), plugin = getIt({
                     pluginName : "isPluginCheck",
                     pluginMethod : function(){}
                 });
@@ -403,7 +406,7 @@
              * Test of JSC.isArray()
              */
             isArray : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not an array
                 equal(JSC.isArray(), false, "An undefined value must not be considered as an array");
@@ -433,7 +436,7 @@
              * Test of JSC.isObject()
              */
             isObject : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not an object
                 equal(JSC.isObject(), false, "An undefined value must not be considered as an object");
@@ -463,7 +466,7 @@
              * Test of JSC.isEmptyObject()
              */
             isEmptyObject : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not an empty object
                 equal(JSC.isEmptyObject(), false, "An undefined value must not be considered as an empty object");
@@ -494,7 +497,7 @@
              * Test of JSC.isString()
              */
             isString : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not a string
                 equal(JSC.isString(), false, "An undefined value must not be considered as a string");
@@ -524,7 +527,7 @@
              * Test of JSC.isBool()
              */
             isBool : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not a boolean
                 equal(JSC.isBool(), false, "An undefined value must not be considered as a boolean");
@@ -555,7 +558,7 @@
              * Test of JSC.isNumeric()
              */
             isNumeric : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not a numeric
                 equal(JSC.isNumeric(), false, "An undefined value must not be considered as a numeric value");
@@ -590,7 +593,7 @@
              * Test of JSC.isNull()
              */
             isNull : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not null
                 equal(JSC.isNull(), false, "An undefined value must not be considered as a null value");
@@ -625,7 +628,7 @@
              * Test of JSC.isUndef()
              */
             isUndef : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not undefined
                 equal(JSC.isUndef(null), false, "A null value must not be considered as an undefined value");
@@ -660,7 +663,7 @@
              * Test of JSC.isVoid()
              */
             isVoid : function() {
-                var className = "aClass", aClass = JSC(className);
+                var className = "aClass", aClass = JSC.create(className);
 
                 // check response when value is not null or undefined
                 equal(JSC.isVoid("10"), false, "A string containing numbers must not be considered as a null or undefined value");
@@ -695,7 +698,7 @@
              * Test of JSC.isHTML()
              */
             isHTML : function() {
-                var className = "aClass", aClass = JSC(className), testHTML_yes, testHTML_no;
+                var className = "aClass", aClass = JSC.create(className), testHTML_yes, testHTML_no;
 
                 testHTML_yes = getIt(function(value) {
                     equal(JSC.isHTML(value), true, "The string \"" + value + "\" must be considered as an HTML string");
@@ -763,7 +766,7 @@
              * Test of JSC.isSelector()
              */
             isSelector : function() {
-                var className = "aClass", aClass = JSC(className), testSelector_yes, testSelector_no;
+                var className = "aClass", aClass = JSC.create(className), testSelector_yes, testSelector_no;
 
                 testSelector_yes = getIt(function(value) {
                     equal(JSC.isSelector(value), true, "The string \"" + value + "\" must be considered as a CSS selector string");
@@ -856,7 +859,7 @@
              * Test of JSC.isURL()
              */
             isURL : function() {
-                var className = "aClass", aClass = JSC(className), testURL_yes, testURL_no;
+                var className = "aClass", aClass = JSC.create(className), testURL_yes, testURL_no;
 
                 testURL_yes = getIt(function(value) {
                     equal(JSC.isURL(value), true, "The string \"" + value + "\" must be considered as an URL string");
@@ -995,6 +998,15 @@
                 testURL_yes("http://www.domain.com:user@p4ss3/path/to/a/page/without/extension?param=1#dash");
                 testURL_yes("http://www.domain.com:user@p4ss3/path/to/a/page/without/extension?param=1,2,3#dash");
                 testURL_yes("http://www.domain.com:user@p4ss3/path/to/a/page/without/extension?param=1;2;3#dash");
+            },
+
+            /**
+             * Test of JSC.compose()
+             */
+            compose : function() {
+                equal(JSC.compose(), "", "Call witout arguments");
+                equal(JSC.compose("test"), "test", "Call with a single argument");
+                equal(JSC.compose("test", "camelized", "name"), "testCamelizedName", "Call with multiple arguments");
             },
 
             /**
@@ -1615,7 +1627,7 @@
             merge : function() {
                 var o = {}, a = [], o1;
 
-                // no exception can be throwed
+                // no exception can be thrown
                 notThrow(function(){
                     // call without parameters
                     o1 = JSC.merge();
@@ -1777,7 +1789,7 @@
                         count ++;
                     });
 
-                // no exception can be throwed
+                // no exception can be thrown
                 notThrow(function(){
                     // call without parameters
                     o3 = JSC.each();
@@ -1861,12 +1873,165 @@
             },
 
             /**
+             * Test of JSC.filter()
+             */
+            filter : function() {
+                var i, result, source, list = getIt([{
+                    // call without parameters
+                    expected : {},
+                    descr : "No arguments"
+                },{
+                    // call with only an empty object
+                    source : {},
+                    expected : {},
+                    descr : "Empty object and no filter"
+                },{
+                    // call with only a filled object
+                    source : {a:1,b:2},
+                    expected : {},
+                    descr : "Filled object and no filter"
+                },{
+                    // call with only an empty array
+                    source : [],
+                    expected : [],
+                    descr : "Empty array and no filter"
+                },{
+                    // call with only a filled array
+                    source : [3,8],
+                    expected : [],
+                    descr : "Filled array and no filter"
+                },{
+                    // call with a filled object and a not null value
+                    source : {a:1,b:2},
+                    filter : 1,
+                    expected : {a:1,b:2},
+                    descr : "Filled array and no filter but a not null value"
+                },{
+                    // call with a filled object and a null value
+                    source : {a:1,b:2},
+                    filter : 0,
+                    expected : {},
+                    descr : "Filled array and no filter but a null value"
+                },{
+                    // call with a filled array and a not null value
+                    source : [3,8],
+                    filter : 1,
+                    expected : [3,8],
+                    descr : "Filled array and no filter but a not null value"
+                },{
+                    // call with a filled array and a null value
+                    source :[3,8],
+                    filter : 0,
+                    expected : [],
+                    descr : "Filled array and no filter but a null value"
+                },{
+                    // call with a filled object and a filter function
+                    source : {a1:1,a2:2,b1:1,b2:2},
+                    filter : function(key, value){
+                        return 'a' == key.charAt(0);
+                    },
+                    expected : {a1:1,a2:2},
+                    descr : "Filled object and a filter function"
+                },{
+                    // call with a filled array and a filter function
+                    source : ["a1", "a2", "b1", "b2"],
+                    filter : function(key, value){
+                        return 'a' == value.charAt(0);
+                    },
+                    expected : ["a1", "a2"],
+                    descr : "Filled array and a filter function"
+                },{
+                    // call with a filled object and a filter regex
+                    source : {a1:1,a2:2,b1:1,b2:2},
+                    filter : /a/,
+                    expected : {a1:1,a2:2},
+                    descr : "Filled object and a filter regex"
+                },{
+                    // call with a filled array and a filter regex
+                    source : ["a1", "a2", "b1", "b2"],
+                    filter : /a/,
+                    expected : ["a1", "a2"],
+                    descr : "Filled array and a filter regex"
+                },{
+                    // call with a filled object and a filter object
+                    source : {a1:1,a2:2,b1:1,b2:2},
+                    filter : {
+                        filter : function(key, value){
+                            return 'a' == key.charAt(0);
+                        }
+                    },
+                    expected : {a1:1,a2:2},
+                    descr : "Filled object and a filter object"
+                },{
+                    // call with a filled array and a filter object
+                    source : ["a1", "a2", "b1", "b2"],
+                    filter : {
+                        filter : function(key, value){
+                            return 'a' == value.charAt(0);
+                        }
+                    },
+                    expected : ["a1", "a2"],
+                    descr : "Filled array and a filter object"
+                },{
+                    // call with a filled object and a filter object with named method
+                    source : {a1:1,a2:2,b1:1,b2:2},
+                    filter : {
+                        check : function(key, value){
+                            return 'a' == key.charAt(0);
+                        }
+                    },
+                    filterMethod : "check",
+                    expected : {a1:1,a2:2},
+                    descr : "Filled object and a filter object with named method"
+                },{
+                    // call with a filled array and a filter object with named method
+                    source : ["a1", "a2", "b1", "b2"],
+                    filter : {
+                        check : function(key, value){
+                            return 'a' == value.charAt(0);
+                        }
+                    },
+                    filterMethod : "check",
+                    expected : ["a1", "a2"],
+                    descr : "Filled array and a filter object with named method"
+                },{
+                    // call with a filled object and a filter object with given method
+                    source : {a1:1,a2:2,b1:1,b2:2},
+                    filter : {},
+                    filterMethod : function(key, value){
+                        return 'a' == key.charAt(0);
+                    },
+                    expected : {a1:1,a2:2},
+                    descr : "Filled object and a filter object with given method"
+                },{
+                    // call with a filled array and a filter object with given method
+                    source : ["a1", "a2", "b1", "b2"],
+                    filter : {},
+                    filterMethod : function(key, value){
+                            return 'a' == value.charAt(0);
+                        },
+                    expected : ["a1", "a2"],
+                    descr : "Filled array and a filter object with given method"
+                }]);
+
+                // run test on the list
+                for(i = 0; i < list.length; i++) {
+                    // no exception can be thrown
+                    notThrow(function(){
+                        result = JSC.filter(list[i].source, list[i].filter, list[i].filterMethod);
+                        deepEqual(result, list[i].expected, "Result content check : " + list[i].descr);
+                        notStrictEqual(result, list[i].expected, "Result reference check : " + list[i].descr);
+                    }, "No exception must be thrown by JSC.filter() : " + list[i].descr);
+                }
+            },
+
+            /**
              * Test of JSC.owned()
              */
             owned : function() {
                 var A, B, a, b, o;
 
-                // no exception can be throwed
+                // no exception can be thrown
                 notThrow(function(){
                     // build some test classes, with prototyped members
                     A = new Function();
@@ -2015,7 +2180,7 @@
              * Test of JSC.abstractMethod()
              */
             abstractMethod : function() {
-                var fn, name = "test", o = {}, throwed;
+                var fn, name = "test", o = {}, thrown;
 
                 // get an anonymous abstract method
                 fn = JSC.abstractMethod();
@@ -2025,18 +2190,18 @@
 
                 // check abstract method in an object
                 o.fn = fn;
-                throwed = false;
+                thrown = false;
                 try {
                     o.fn();
                 } catch(e) {
-                    throwed = true;
+                    thrown = true;
                     if( e instanceof JSC.Error ) {
                         equal(e.context, "[unknownClass].[unknownMethod]", "Error thrown must set right context for unnamed abstract method");
                     } else {
                         ok(false, "Throwed error is not an instance of JSC.Error !");
                     }
                 }
-                ok(throwed, "Calling of named abstract method in object context must throw an exception");
+                ok(thrown, "Calling of named abstract method in object context must throw an exception");
 
                 // get a named abstract method
                 fn = JSC.abstractMethod(name);
@@ -2046,33 +2211,33 @@
 
                 // check abstract method in an object
                 o.fn = fn;
-                throwed = false;
+                thrown = false;
                 try {
                     o.fn();
                 } catch(e) {
-                    throwed = true;
+                    thrown = true;
                     if( e instanceof JSC.Error ) {
                         equal(e.context, "[unknownClass]." + name, "Error thrown must set right context for named abstract method");
                     } else {
                         ok(false, "Throwed error is not an instance of JSC.Error !");
                     }
                 }
-                ok(throwed, "Calling of named abstract method in object context must throw an exception");
+                ok(thrown, "Calling of named abstract method in object context must throw an exception");
 
                 // check abstract method in an instance
                 o.className = "A";
-                throwed = false;
+                thrown = false;
                 try {
                     o.fn();
                 } catch(e) {
-                    throwed = true;
+                    thrown = true;
                     if( e instanceof JSC.Error ) {
                         equal(e.context, "A." + name, "Error thrown must set right context for named abstract method");
                     } else {
                         ok(false, "Throwed error is not an instance of JSC.Error !");
                     }
                 }
-                ok(throwed, "Calling of named abstract method in object context must throw an exception");
+                ok(thrown, "Calling of named abstract method in object context must throw an exception");
             },
 
             /**
@@ -2195,13 +2360,13 @@
             extend : function() {
                 var A, B, a, b, value;
 
-                // no exception can be throwed
+                // no exception can be thrown
                 notThrow(function(){
                     // call without arguments
-                    equal(JSC.extend(), undefined, "Call of extend with no parameters must return undefined");
+                    strictEqual(JSC.extend(), undefined, "Call of extend with no parameters must return undefined");
 
                     // call with only a string value
-                    equal(JSC.extend("Class"), "Class", "Call of extend with no class must return given value");
+                    strictEqual(JSC.extend("Class"), "Class", "Call of extend with no class must return given value");
 
                     // build testbed
                     A = new Function();
@@ -2214,19 +2379,18 @@
                     B[proto].b = true;
 
                     // call with only a class
-                    equal(JSC.extend(A), A, "Call of extend with only a class must return given class");
+                    strictEqual(JSC.extend(A[proto]), A[proto], "Call of extend with only a class must return given class");
 
                     // call with a class to extend
-                    b = JSC.extend(B, {
+                    b = JSC.extend(B[proto], {
                         a : false,
                         c : "",
                         f : function(){
                             this.inherited();
                             value += "B";
                         }
-                    }, A);
-                    ok(JSC.isFunction(b), "Class.extend() must return the class");
-                    equal(b, B, "Resturn of Class.extend() must be equal to the class");
+                    });
+                    strictEqual(b, B[proto], "Return of Class.extend() must be equal to the class");
                     ok(JSC.isOverloaded(B[proto].f), "Method must be tagged as overriding");
 
                     value = "";
@@ -2251,10 +2415,10 @@
              * Test of JSC.implement()
              */
             implement : function() {
-                var i, a, value, throwed, A = getIt(function(){});
+                var i, a, f, value, thrown, A = getIt(function(){});
                 A.className = "A";
 
-                // no exception can be throwed
+                // no exception can be thrown
                 notThrow(function(){
                     // call without arguments
                     equal(JSC.implement(), undefined, "Call of implement with no parameters must return undefined");
@@ -2273,6 +2437,30 @@
                 equal(a, A, "Returned class must be equal to original one");
                 equal(A.className, "A", "ClassName must not be altered");
                 ok(A.interfaces.test, "Class must implement void interface 'test'");
+
+                // call with a class and a known interface name
+                a = JSC.implement(A, "SimpleEvents");
+                equal(a, A, "Returned class must be equal to original one");
+                equal(A.className, "A", "ClassName must not be altered");
+                ok(A.interfaces.SimpleEvents, "Class must implement global known interface 'SimpleEvents'");
+                ok(JSC.isFunction(A.prototype.on), "Class must implement method 'on' from interface 'SimpleEvents'");
+                ok(JSC.isFunction(A.prototype.off), "Class must implement method 'off' from interface 'SimpleEvents'");
+                ok(JSC.isFunction(A.prototype.trigger), "Class must implement method 'trigger' from interface 'SimpleEvents'");
+
+                // check implemented interface
+                a = new A();
+                f = getIt(function(){value = "test";});
+                value = a.on("test", f);
+                strictEqual(value, a, "The class must be returned when add an event handler");
+                value = a.on("test");
+                strictEqual(value, f, "The handler must be returned when get an event handler");
+                a.trigger("test");
+                equal(value, "test", "The handler must be properly called when the event is triggered");
+                value = a.off("test");
+                strictEqual(value, f, "The handler must be returned when remove an event handler");
+                value = "";
+                a.trigger("test");
+                equal(value, "", "The removed handler must not be called when the event is triggered");
 
                 // call with a class and a void interface
                 a = JSC.implement(A, []);
@@ -2392,30 +2580,30 @@
 
                 // check for abstract interface methods
                 for(i = 1; i < 4; i++) {
-                    throwed = false;
+                    thrown = false;
                     try {
                         ok(JSC.isAbstract(a["fn" + i]), "Method fn" + i + " must be tagged as abstract");
                         a["fn" + i]();
                     } catch(e) {
-                        throwed = true;
+                        thrown = true;
                         if( e instanceof JSC.Error ) {
                             equal(e.context, "A.fn" + i, "Error thrown must set right context for unnamed abstract method");
                         } else {
                             ok(false, "Throwed error is not an instance of JSC.Error !");
                         }
                     }
-                    ok(throwed, "Calling of abstract method fn" + i + " must throw an exception");
+                    ok(thrown, "Calling of abstract method fn" + i + " must throw an exception");
                 }
 
                 // check for concrete interface methods
                 for(i = 4; i < 7; i++) {
-                    throwed = false;
+                    thrown = false;
                     try {
                         a["fn" + i]();
                     } catch(e) {
-                        throwed = true;
+                        thrown = true;
                     }
-                    ok(!throwed, "Calling of concrete method fn" + i + " must not throw an exception");
+                    ok(!thrown, "Calling of concrete method fn" + i + " must not throw an exception");
                     equal(value, "fn" + i, "Value must be altered by a call fn" + i);
                 }
             },
@@ -2490,9 +2678,9 @@
             instanceOf : function() {
                 // build test bed
                 var value = "", Interface1, Interface2 = getIt({className : "Interface2"}),
-                    A = JSC("A").implement("Interface1").implement(Interface2).implement([], "Interface3"),
-                    B = JSC("B"),
-                    C = JSC({
+                    A = JSC.create("A").implement("Interface1").implement(Interface2).implement([], "Interface3"),
+                    B = JSC.create("B"),
+                    C = JSC.create({
                         superClass : A,
                         className : "C"
                     }).implement("Interface4"),
@@ -2501,7 +2689,7 @@
                 JSC.globalize(B);
                 JSC.globalize(C);
 
-                // no exception can be throwed
+                // no exception can be thrown
                 notThrow(function(){
                     // call without arguments
                     equal(JSC.instanceOf(), false, "Instance of nothing");
@@ -2548,6 +2736,82 @@
                 ok(!JSC.instanceOf(a, "Interface4"), "'a' is not an instance of interface 'Interface4'");
                 ok(!JSC.instanceOf(b, "Interface4"), "'b' is not an instance of interface 'Interface4'");
                 ok(JSC.instanceOf(c, "Interface4"), "'c' is an instance of interface 'Interface4'");
+            },
+
+            /**
+             * Test of JSC.getSuperClassName()
+             */
+            getSuperClassName : function() {
+                notThrow(function(){
+                    // check with wrong parameters
+                    strictEqual(JSC.getSuperClassName(), undefined, "Check with no parameter");
+                    strictEqual(JSC.getSuperClassName(null), undefined, "Check with null");
+                    strictEqual(JSC.getSuperClassName(undefined), undefined, "Check with undefined");
+                    strictEqual(JSC.getSuperClassName(""), undefined, "Check with a void string");
+                    strictEqual(JSC.getSuperClassName("test"), undefined, "Check with a string");
+                    strictEqual(JSC.getSuperClassName({}), undefined, "Check with a void object");
+                    strictEqual(JSC.getSuperClassName([]), undefined, "Check with a void array");
+                    strictEqual(JSC.getSuperClassName(function(){}), undefined, "Check with a void function");
+
+                    // check with a class that has no super class
+                    var className = "testClass", Class = JSC.create(className);
+                    equal(JSC.getSuperClassName(Class), undefined, "Check with a class");
+                    equal(JSC.getSuperClassName(new Class()), undefined, "Check with an instance");
+
+                    // check with a class that has super class
+                    Class = JSC.create({className: "testClass2", superClass: Class});
+                    equal(JSC.getSuperClassName(Class), className, "Check with a class");
+                    equal(JSC.getSuperClassName(new Class()), className, "Check with an instance");
+                }, "JSC.getSuperClassName() must not throw an exception");
+            },
+
+            /**
+             * Test of JSC.getSuperClass()
+             */
+            getSuperClass : function() {
+                notThrow(function(){
+                    // check with wrong parameters
+                    strictEqual(JSC.getSuperClass(), undefined, "Check with no parameter");
+                    strictEqual(JSC.getSuperClass(null), undefined, "Check with null");
+                    strictEqual(JSC.getSuperClass(undefined), undefined, "Check with undefined");
+                    strictEqual(JSC.getSuperClass(""), undefined, "Check with a void string");
+                    strictEqual(JSC.getSuperClass("test"), undefined, "Check with a string");
+                    strictEqual(JSC.getSuperClass({}), undefined, "Check with a void object");
+                    strictEqual(JSC.getSuperClass([]), undefined, "Check with a void array");
+                    strictEqual(JSC.getSuperClass(function(){}), undefined, "Check with a void function");
+
+                    // check with a class that has no super class
+                    var className = "testClass", Class = JSC.create(className);
+                    equal(JSC.getSuperClass(Class), undefined, "Check with a class");
+                    equal(JSC.getSuperClass(new Class()), undefined, "Check with an instance");
+
+                    // check with a class that has super class
+                    var Child = JSC.create({className: "testClass2", superClass: Class});
+                    strictEqual(JSC.getSuperClass(Child), Class, "Check with a class");
+                    strictEqual(JSC.getSuperClass(new Child()), Class, "Check with an instance");
+                }, "JSC.getSuperClass() must not throw an exception");
+            },
+
+            /**
+             * Test of JSC.getClassName()
+             */
+            getClassName : function() {
+                notThrow(function(){
+                    // check with wrong parameters
+                    strictEqual(JSC.getClassName(), undefined, "Check with no parameter");
+                    strictEqual(JSC.getClassName(null), undefined, "Check with null");
+                    strictEqual(JSC.getClassName(undefined), undefined, "Check with undefined");
+                    strictEqual(JSC.getClassName(""), undefined, "Check with a void string");
+                    strictEqual(JSC.getClassName("test"), undefined, "Check with a string");
+                    strictEqual(JSC.getClassName({}), undefined, "Check with a void object");
+                    strictEqual(JSC.getClassName([]), undefined, "Check with a void array");
+                    strictEqual(JSC.getClassName(function(){}), undefined, "Check with a void function");
+
+                    // check with a class
+                    var className = "testClass", Class = JSC.create(className);
+                    equal(JSC.getClassName(Class), className, "Check with a class");
+                    equal(JSC.getClassName(new Class()), className, "Check with an instance");
+                }, "JSC.getClassName() must not throw an exception");
             },
 
             /**
@@ -2599,7 +2863,6 @@
                 notEqual(JSC.getClass(RegExp), undefined, "Ask of native class RegExp must achieve with success");
                 notEqual(JSC.getClass(String), undefined, "Ask of native class String must achieve with success");
             },
-
 
             /**
              * Test of JSC.loadClass()
@@ -2681,10 +2944,9 @@
             * Test of JSC.make()
             */
             make : function() {
-                var aClass;
+                var aClass, aClassName;
 
                 // check for global context
-                ok(undefined === JSC.global(defaultClassName), "Class with default name must not exists as global yet !");
                 ok(undefined === JSC.global("standardClassA"), "Class 'standardClassA' must not exists as global yet !");
                 ok(undefined === JSC.global("standardClassB"), "Class 'standardClassB' must not exists as global yet !");
                 ok(undefined === JSC.global("standardClassC"), "Class 'standardClassC' must not exists as global yet !");
@@ -2699,15 +2961,16 @@
                 notThrow(function(){
                     // with no definition
                     aClass = JSC.make();
-                    testClassCommon(aClass, defaultClassName);
+                    aClassName = defaultClassName + JSC.id(aClass);
+                    testClassCommon(aClass, aClassName);
 
                     // with simple definition
-                    aClass = JSC.make({value: null});
-                    testClassCommon(aClass, defaultClassName);
+                    aClass = JSC.make({value: null, className : aClassName});
+                    testClassCommon(aClass, aClassName);
 
                     // with more complete definition
-                    aClass = JSC.make("", true, {value: 10}, 0, {version: 1});
-                    testClassCommon(aClass, defaultClassName);
+                    aClass = JSC.make("", true, {value: 10, className: aClassName}, 0, {version: 1});
+                    testClassCommon(aClass, aClassName);
                     ok("undefined" === typeof aClass.value, "Class must not have static member affected from given definition");
                     ok("undefined" !== typeof aClass.version, "Class must have static member affected from given definition");
                 }, "JSC.make() must not throw any exception when building a class without definition");
@@ -2738,7 +3001,7 @@
                 });
 
                 // check for global context
-                ok(JSC.isClass(JSC.global(defaultClassName)), "Class with default name must exists as global now !");
+                ok(JSC.isClass(JSC.global(aClassName)), "Class with default name must exists as global now !");
                 ok(JSC.isClass(JSC.global("standardClassA")), "Class 'standardClassA' must exists as global now !");
                 ok(JSC.isClass(JSC.global("standardClassC")), "Class 'standardClassC' must exists as global now !");
                 ok(JSC.isClass(JSC.global("singletonClassA")), "Class 'singletonClassA' must exists as global now !");
@@ -2747,31 +3010,13 @@
                 ok(JSC.isClass(JSC.global("multitonClassC")), "Class 'multitonClassC' must exists as global now !");
 
                 // clear global context
-                JSC.globalize(defaultClassName);
+                JSC.globalize(aClassName);
                 JSC.globalize("standardClassA");
                 JSC.globalize("standardClassC");
                 JSC.globalize("singletonClassA");
                 JSC.globalize("singletonClassC");
                 JSC.globalize("multitonClassA");
                 JSC.globalize("multitonClassC");
-            },
-
-            /**
-             * Test of JSC.basis()
-             */
-            basis : function() {
-                // create a mok class
-                var result, className = "aClass", aClass = getIt(function() {
-                    return aClass.body ? aClass.body.apply(aClass, arguments) : undefined;
-                });
-                aClass.interfaces = {};
-
-                // apply JSC class basis on the mok class
-                result = JSC.basis(aClass, className);
-                strictEqual(result, aClass, "The returned class must be equal to the given one");
-
-                // the mok class with applied JSC class basis must operate as a common JSC generated class
-                testClassCommon(aClass, className);
             },
 
             /**
@@ -2911,15 +3156,84 @@
             },
 
             /**
-            * Test of JSC.Error()
-            */
+             * Test of JSC.helper()
+             */
+            helper : function() {
+                var arg1, arg2, exportDef = getIt({className : "MyExportedClass"});
+
+                // check with wrong or empty parameters
+                notThrow(function(){
+                    JSC.helper();
+                    JSC.helper(true);
+                    equal(JSC.helper(function(){return "test"}), "test", "JSC.helper() must return the result of the given function");
+                }, "JSC.helper() must not throw any exception");
+
+                // check in normal way
+                JSC.helper(function(JSC, other){
+                    // take a snapshot of context
+                    arg1 = JSC;
+                    arg2 = other;
+
+                    // backup and enhance the builder context
+                    var backup = JSC.Statics;
+                    JSC.Statics = JSC.filter(JSC.Statics, true);
+                    JSC.Statics.staticMethod = getIt(function(){});
+                    JSC.Statics.staticProperty = "test";
+
+                    // check the builder
+                    var aClass = JSC.create({fn: function(){}});
+                    ok(JSC.isClass(aClass), "A class must be built by the builder");
+                    ok(JSC.isFunction(aClass.staticMethod), "Static method 'staticMethod' must exist");
+                    strictEqual(aClass.staticMethod, JSC.Statics.staticMethod, "Static method 'staticMethod' must be equal to source");
+                    strictEqual(aClass.staticProperty, JSC.Statics.staticProperty, "Static property 'staticProperty' must be equal to source");
+
+                    // check the builder with inheritance
+                    var bClass = JSC.create(aClass, {fn2: function(){}}, "TestClass", {fn3: function(){}});
+                    ok(JSC.isClass(bClass), "A class must be built by the builder");
+                    equal(bClass.className, "TestClass", "The name of the class must be set by the builder");
+                    var b = new bClass();
+                    ok(b instanceof aClass, "The instance must be an instance of the parent class");
+                    ok(JSC.isFunction(b.fn), "The instance must have member method 'fn'");
+                    ok(JSC.isFunction(b.fn2), "The instance must have member method 'fn2'");
+                    ok(JSC.isFunction(b.fn3), "The instance must have member method 'fn3'");
+
+                    // restore old builder context
+                    JSC.Statics = backup;
+
+                    // check export
+                    return JSC.create(exportDef);
+                }, exportDef);
+
+                // check the context of the helper
+                strictEqual(arg1, JSC, "The first argument must be the library entry point");
+                strictEqual(arg2, exportDef, "The second argument must be the given one");
+
+                // check the exported class
+                ok(JSC.isClass(JSC.global(exportDef.className)), "The class must be exported to global");
+                JSC.globalize(exportDef.className);
+            },
+
+            /**
+             * Test of JSC.noConflict()
+             */
+            noConflict : function() {
+                var j = JSC.noConflict();
+                ok(undefined === JSC, "JSC must not exists once the previous context restored");
+                ok("object" === typeof j && "JSC" === j.className && versionToTest === j.version, "JSC.noConflict() must return the library entry point");
+                j.globalize(j);
+                ok("object" === typeof JSC, "JSC must now exists once installed again");
+            },
+
+            /**
+             * Test of JSC.Error()
+             */
             Error : function() {
                 var instance, msg = "Error Check", ctx = "Error Ctx";
 
                 // identity check for JSC Error class
                 ok("function" === typeof JSC.Error, "JSC.Error must be a function");
                 ok(JSC.isClass(JSC.Error), "JSC.Error must be a class")
-                strictEqual(JSC.Error.className, "JSC.Error", "Class name of JSC.Error must be defined");
+                strictEqual(JSC.Error.className, "Error", "Class name of JSC.Error must be defined");
                 strictEqual(JSC.Error.guid, 1, "GUID of JSC.Error must be defined and comply to the needed one");
 
                 // Check instantiation of JSC.Error
@@ -2948,6 +3262,14 @@
                 }, "No exception must be thrown when instantiate JSC.Error");
             }
         };
+
+    /**
+     * Ensure existence of 'console'
+     */
+    console = console || {};
+    if( !console.log ) {
+        console.log = function() {};
+    }
 
     /**
      * Get an UTC date
@@ -2987,10 +3309,14 @@
      * @return {Object} Return the result of the called function
      */
     function notThrow(fn, msg, args) {
-        var result, throwed = false;
-        try {result = fn.apply(this, args || []);}
-        catch(e) {throwed = true;}
-        ok(!throwed, msg || "No exception must be thrown");
+        var result, thrown = false;
+        try {
+            result = fn.apply(this, args || []);
+        } catch(e) {
+            thrown = true;
+            console.log(e);
+        }
+        ok(!thrown, msg || "No exception must be thrown");
         return result;
     }
 
@@ -3002,10 +3328,13 @@
      * @param {Array} [args] Optional arguments for the called function
      */
     function mustThrow(fn, msg, args) {
-        var throwed = false;
-        try {fn.apply(this, args || []);}
-        catch(e) {throwed = true;}
-        ok(throwed, msg || "An exception must be thrown");
+        var thrown = false;
+        try {
+            fn.apply(this, args || []);
+        } catch(e) {
+            thrown = true;
+        }
+        ok(thrown, msg || "An exception must be thrown");
     }
 
     /**
@@ -3033,35 +3362,6 @@
         var ctxMsg = (contextClassName || className) + "[integrity] : ";
         testClassReturn(theClass, returnedClass, className, contextClassName);
         equal(theClass.className, className, ctxMsg + "The name of the class as static member must be ok");
-        equal(theClass[proto].className, className, ctxMsg + "The name of the class as prototype member must be ok");
-    }
-
-    /**
-     * Common class tests, called for each class test : test of class method "rename()"
-     *
-     * @param {Function} theClass The class to test
-     * @param {String} className The name of the tested class
-     */
-    function testClassRename(theClass, className) {
-        var returnedClass, otherName = "__another_class_name__", ctxMsg = className + "[rename] : ";
-
-        // with another name
-        returnedClass = theClass.rename(otherName);
-        testClassIntegrity(theClass, returnedClass, otherName, className);
-
-        // with void name
-        returnedClass = theClass.rename("");
-        testClassIntegrity(theClass, returnedClass, defaultClassName, className);
-
-        // restore original name
-        theClass.rename(className);
-
-        // with no name
-        returnedClass = theClass.rename();
-        testClassIntegrity(theClass, returnedClass, defaultClassName, className);
-
-        // restore original name
-        theClass.rename(className);
     }
 
     /**
@@ -3396,6 +3696,57 @@
     function testClassBasis(className, classGetter, instanceGetter) {
         var instance, theClass, ctxMsg = className + "[basis] : ";
 
+        // test Class.derive
+        notThrow(function(){
+            var privateValue, childClass, childClass2, childClassName = className + "Child", childDefs = getIt({
+                className : childClassName,
+                getPrivateValue : function() {
+                    return privateValue;
+                },
+                setPrivateValue : function(value) {
+                    privateValue = value;
+                    return this;
+                },
+                aMethod : function() {
+                    privateValue = "1";
+                }
+            }), ctxMsg = className + "[basis/derive] : ";
+
+            // derive the class and extend it with a couple of methods
+            theClass = classGetter();
+            childClass = theClass.derive(childDefs);
+            notEqual(childClass, theClass, ctxMsg + "The returned class must be different from the parent !");
+            equal(childClass.className, childClassName, ctxMsg + "The returned class must have the right name !");
+            instance = new childClass();
+            ok(instance instanceof theClass, ctxMsg + "The built instance must be instance of the parent class !");
+            ok(instance instanceof childClass, ctxMsg + "The built instance must be instance of the child class !");
+            ok(JSC.isFunction(instance.getPrivateValue), ctxMsg + "The method 'getPrivateValue' must exists !");
+            ok(JSC.isFunction(instance.setPrivateValue), ctxMsg + "The method 'setPrivateValue' must exists !");
+            strictEqual(instance.setPrivateValue(10), instance, ctxMsg + "The returned value of 'setPrivateValue' must be the instance in which the method has been called !");
+            equal(instance.getPrivateValue(), 10, ctxMsg + "Check of method 'getPrivateValue'");
+            instance.aMethod();
+            equal(privateValue, "1", ctxMsg + "Check behavior of base added method 'aMethod'");
+
+            // derive the child class and extend it with an overloading method
+            childClass2 = childClass.derive(childClassName + "2", {
+                aMethod : function() {
+                    this.inherited();
+                    privateValue += "2";
+                }
+            });
+            notEqual(childClass2, childClass, ctxMsg + "The returned class must be different from the parent !");
+            equal(childClass2.className, childClassName + "2", ctxMsg + "The returned class must have the right name !");
+            instance = new childClass2();
+            ok(instance instanceof theClass, ctxMsg + "The built instance must be instance of the parent class !");
+            ok(instance instanceof childClass, ctxMsg + "The built instance must be instance of the child class !");
+            ok(instance instanceof childClass2, ctxMsg + "The built instance must be instance of the child class !");
+            instance.aMethod();
+            equal(privateValue, "12", ctxMsg + "Check behavior of overloaded method 'aMethod' in existing instance");
+            instance = new childClass();
+            instance.aMethod();
+            equal(privateValue, "1", ctxMsg + "Check behavior of overloaded method 'aMethod' in parent class instance");
+        }, ctxMsg + "JSC must not throw any exception when calling the class method 'derive'");
+
         // test Class.extend
         notThrow(function(){
             var privateValue, baseDefs = getIt({
@@ -3538,20 +3889,19 @@
      * @param {Function|String} superClass A reference or the name of the superClass
      */
     function testClassCommon(theClass, className, superClass) {
-        var ctxMsg = className + "[common] : ";
+        var i, ctxMsg = className + "[common] : ";
 
         // test of class type
         ok("function" === typeof theClass, ctxMsg + "A class is a particular function");
         ok(JSC.isFunction(theClass), ctxMsg + "A class must be checked as a function by JSC.isFunction()");
         ok(JSC.isClass(theClass), ctxMsg + "A class must be checked as a class by JSC.isClass()");
         ok(!JSC.isObject(theClass), ctxMsg + "A class must not be checked as an object by JSC.isObject()");
+        equal("" + theClass, className, ctxMsg + "Check the string convertion");
 
         // presence check of needed statics methods
-        (function(names){
-            for(var i = 0; i < names.length; i++) {
-                ok("function" === typeof theClass[names[i]], ctxMsg + "A class must have static method " + names[i] + "()");
-            }
-        })(["extend", "implement", "statics", "self", "rename"]);
+        for(i in JSC.Statics) {
+            ok("function" === typeof theClass[i], ctxMsg + "A class must have static method " + i + "()");
+        }
 
         // presence check of needed statics objects
         (function(names){
@@ -3561,11 +3911,9 @@
         })(["interfaces", "prototype"]);
 
         // presence check of needed prototyped methods
-        (function(names){
-            for(var i = 0; i < names.length; i++) {
-                ok("function" === typeof theClass[proto][names[i]], ctxMsg + "A class must have prototyped method " + names[i] + "()");
-            }
-        })(["attach"]);
+        for(i in JSC.Prototypes) {
+            ok("function" === typeof theClass[proto][i], ctxMsg + "A class must have prototyped method " + i + "()");
+        }
 
         // test of GUID
         ok("number" === typeof theClass.guid, ctxMsg + "A class must have a GUID member");
@@ -3574,7 +3922,7 @@
         // test of class identity
         equal(JSC.type(theClass), className, ctxMsg + "Type of a class must be itself");
         equal(theClass.className, className, ctxMsg + "Name of class must be specified as a static member");
-        equal(theClass[proto].className, className, ctxMsg + "Name of class must be specified as a prototyped member");
+        equal("" + theClass, className, ctxMsg + "Name of class must be returned when converting to string");
 
         // optional test for inheritance
         if( superClass ) {
@@ -3588,7 +3936,6 @@
         }
 
         // test of class methods
-        testClassRename(theClass, className);
         testClassSelf(theClass, className);
         testClassStatics(theClass, className);
         testClassMethod(theClass, className);
@@ -3621,7 +3968,7 @@
             instance = theClass();
             ok(instance, ctxMsg + "An instance must be built from factory !");
             ok(instance instanceof theClass, ctxMsg + "Instance built from factory must be an instance of the class !");
-        }, ctxMsg + "No exception must be throwed when get an instance by factory !");
+        }, ctxMsg + "No exception must be thrown when get an instance by factory !");
     }
 
     /**
@@ -3633,11 +3980,12 @@
     function testClassStandardSimpliest(generator, generatorName) {
         // building class without definition
         notThrow(function(){
-            var aClass, className = "aClass";
+            var aClass, aClassName, className = "aClass";
 
             // no definition
             aClass = generator();
-            testClassCommon(aClass, defaultClassName);
+            aClassName = defaultClassName + JSC.id(aClass);
+            testClassCommon(aClass, aClassName);
 
             // just the name of the class
             aClass = generator(className);
@@ -3662,11 +4010,12 @@
             return generator(JSC.merge({}, classDefs));
         }), instanceGetter = getIt(function(theClass){
             return new theClass();
-        }), ctxMsg = className + "[standard] : ";
+        }), ctxMsg, ctxMsgSuffix = "[standard] : ";
 
         // base class creation
         markerValue = undefined;
         className = "standardClassA";
+        ctxMsg = className + ctxMsgSuffix;
         classDefs = getIt({
             className : className,
             initialize : function() {
@@ -3681,6 +4030,7 @@
             }
         });
         var standardClassA = generator(classDefs);
+        standardClassA[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(standardClassA, className);
 
@@ -3701,6 +4051,7 @@
         // first level child class creation
         markerValue = undefined;
         className = "standardClassB";
+        ctxMsg = className + ctxMsgSuffix;
         classDefs = getIt({
             className : className,
             superClass : standardClassA,
@@ -3714,6 +4065,7 @@
             dummy : "member"
         });
         var standardClassB = generator(classDefs);
+        standardClassB[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(standardClassB, className, standardClassA);
         ok(JSC.isOverloaded(standardClassB[proto].initialize), ctxMsg + "Method 'initialize' must be tagged as overloaded");
@@ -3738,6 +4090,7 @@
         // second level child class creation
         markerValue = undefined;
         className = "standardClassC";
+        ctxMsg = className + ctxMsgSuffix;
         JSC.globalize(standardClassB);
         classDefs = getIt({
             className : className,
@@ -3747,6 +4100,7 @@
             }
         });
         var standardClassC = generator(classDefs);
+        standardClassC[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(standardClassC, className, standardClassB);
         ok(!JSC.isOverloaded(standardClassC[proto].fn), ctxMsg + "Method 'fn' must not be tagged as overloaded");
@@ -3780,12 +4134,13 @@
     function testClassSingletonSimpliest(generator, generatorName) {
         // building class without definition
         notThrow(function(){
-            var aClass, className = "aClass";
+            var aClass, aClassName, className = "aClass";
 
             // no definition
             aClass = generator();
-            testClassCommon(aClass, defaultClassName);
-            testClassCommonSingleton(aClass, defaultClassName);
+            aClassName = defaultClassName + JSC.id(aClass);
+            testClassCommon(aClass, aClassName);
+            testClassCommonSingleton(aClass, aClassName);
 
             // just the name of the class
             aClass = generator(className);
@@ -3811,11 +4166,12 @@
             return generator(JSC.merge({}, classDefs));
         }), instanceGetter = getIt(function(theClass){
             return theClass.getInstance();
-        }), ctxMsg = className + "[singleton] : ";
+        }), ctxMsg, ctxMsgSuffix = "[singleton] : ";
 
         // base class creation
         markerValue = undefined;
         className = "singletonClassA";
+        ctxMsg = className + ctxMsgSuffix;
         classDefs = getIt({
             className : className,
             initialize : function() {
@@ -3830,6 +4186,7 @@
             }
         });
         var singletonClassA = generator(classDefs);
+        singletonClassA[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(singletonClassA, className);
         testClassCommonSingleton(singletonClassA, className);
@@ -3848,13 +4205,14 @@
         equal(instance.fnValue, className + ".fnA",  ctxMsg + "Result of method call");
         for(i = 0; i < 4; i++) {
             strictEqual(singletonClassA.getInstance(i), instance, ctxMsg + "Only one instance must be created in a singleton");
-            strictEqual(singletonClassA.getInstance(i).guid, instance.guid, ctxMsg + "Only one instance must be created in a singleton");
+            strictEqual(JSC.id(singletonClassA.getInstance(i)), JSC.id(instance), ctxMsg + "Only one instance must be created in a singleton");
         }
         testClassBasis(className, classGetter, instanceGetter);
 
         // first level child class creation
         markerValue = undefined;
         className = "singletonClassB";
+        ctxMsg = className + ctxMsgSuffix;
         classDefs = getIt({
             className : className,
             superClass : singletonClassA,
@@ -3868,6 +4226,7 @@
             dummy : "member"
         });
         var singletonClassB = generator(classDefs);
+        singletonClassB[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(singletonClassB, className, singletonClassA);
         testClassCommonSingleton(singletonClassB, className);
@@ -3891,13 +4250,14 @@
         equal(instance.fnValue, className + ".fnA" + className + ".fnB",  ctxMsg + "Result of method call");
         for(i = 0; i < 4; i++) {
             strictEqual(singletonClassB.getInstance(i), instance, ctxMsg + "Only one instance must be created in a singleton");
-            strictEqual(singletonClassB.getInstance(i).guid, instance.guid, ctxMsg + "Only one instance must be created in a singleton");
+            strictEqual(JSC.id(singletonClassB.getInstance(i)), JSC.id(instance), ctxMsg + "Only one instance must be created in a singleton");
         }
         testClassBasis(className, classGetter, instanceGetter);
 
         // second level child class creation
         markerValue = undefined;
         className = "singletonClassC";
+        ctxMsg = className + ctxMsgSuffix;
         JSC.globalize(singletonClassB);
         classDefs = getIt({
             className : className,
@@ -3907,6 +4267,7 @@
             }
         });
         var singletonClassC = generator(classDefs);
+        singletonClassC[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(singletonClassC, className, singletonClassB);
         testClassCommonSingleton(singletonClassC, className);
@@ -3932,7 +4293,7 @@
         equal(instance.fnValue, className + ".fnC",  ctxMsg + "Result of method call");
         for(i = 0; i < 4; i++) {
             strictEqual(singletonClassC.getInstance(i), instance, ctxMsg + "Only one instance must be created in a singleton");
-            strictEqual(singletonClassC.getInstance(i).guid, instance.guid, ctxMsg + "Only one instance must be created in a singleton");
+            strictEqual(JSC.id(singletonClassC.getInstance(i)), JSC.id(instance), ctxMsg + "Only one instance must be created in a singleton");
         }
         testClassBasis(className, classGetter, instanceGetter);
         JSC.globalize("singletonClassB");
@@ -3948,11 +4309,12 @@
             return generator(JSC.merge({}, classDefs));
         }), instanceGetter = getIt(function(theClass){
             return theClass.getInstance("basis");
-        }), ctxMsg = className + "[multiton] : ";
+        }), ctxMsg, ctxMsgSuffix = "[multiton] : ";
 
         // base class creation
         markerValue = undefined;
         className = "multitonClassA";
+        ctxMsg = className + ctxMsgSuffix;
         classDefs = getIt({
             className : className,
             initialize : function() {
@@ -3967,6 +4329,7 @@
             }
         });
         var multitonClassA = generator(classDefs);
+        multitonClassA[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(multitonClassA, className);
         testClassCommonSingleton(multitonClassA, className);
@@ -3985,10 +4348,10 @@
         equal(instance.fnValue, className + ".fnA",  ctxMsg + "Result of method call");
         for(i = 0; i < 4; i++) {
             strictEqual(multitonClassA.getInstance("A"), instance, ctxMsg + "Only one instance must be created in a multiton for a given key");
-            strictEqual(multitonClassA.getInstance("A").guid, instance.guid, ctxMsg + "Only one instance must be created in a multiton for a given key");
+            strictEqual(JSC.id(multitonClassA.getInstance("A")), JSC.id(instance), ctxMsg + "Only one instance must be created in a multiton for a given key");
         }
         notStrictEqual(multitonClassA.getInstance("a"), instance, ctxMsg + "Another key must produce another instance in multiton pattern");
-        notStrictEqual(multitonClassA.getInstance("a").guid, instance.guid, ctxMsg + "Another key must produce another instance in multiton pattern");
+        notStrictEqual(JSC.id(multitonClassA.getInstance("a")), JSC.id(instance), ctxMsg + "Another key must produce another instance in multiton pattern");
         for(i = 0; i < 4; i++) {
             notStrictEqual(multitonClassA.getInstance(i), instance, ctxMsg + "Only one instance must be created in a multiton for a given key");
             instance = multitonClassA.getInstance(i);
@@ -3998,6 +4361,7 @@
         // first level child class creation
         markerValue = undefined;
         className = "multitonClassB";
+        ctxMsg = className + ctxMsgSuffix;
         classDefs = getIt({
             className : className,
             superClass : multitonClassA,
@@ -4011,6 +4375,7 @@
             dummy : "member"
         });
         var multitonClassB = generator(classDefs);
+        multitonClassB[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(multitonClassB, className, multitonClassA);
         testClassCommonSingleton(multitonClassB, className);
@@ -4034,10 +4399,10 @@
         equal(instance.fnValue, className + ".fnA" + className + ".fnB",  ctxMsg + "Result of method call");
         for(i = 0; i < 4; i++) {
             strictEqual(multitonClassB.getInstance("B"), instance, ctxMsg + "Only one instance must be created in a multiton for a given key");
-            strictEqual(multitonClassB.getInstance("B").guid, instance.guid, ctxMsg + "Only one instance must be created in a multiton for a given key");
+            strictEqual(JSC.id(multitonClassB.getInstance("B")), JSC.id(instance), ctxMsg + "Only one instance must be created in a multiton for a given key");
         }
         notStrictEqual(multitonClassB.getInstance("b"), instance, ctxMsg + "Another key must produce another instance in multiton pattern");
-        notStrictEqual(multitonClassB.getInstance("b").guid, instance.guid, ctxMsg + "Another key must produce another instance in multiton pattern");
+        notStrictEqual(JSC.id(multitonClassB.getInstance("b")), JSC.id(instance), ctxMsg + "Another key must produce another instance in multiton pattern");
         for(i = 0; i < 4; i++) {
             notStrictEqual(multitonClassB.getInstance(i), instance, ctxMsg + "Only one instance must be created in a multiton for a given key");
             instance = multitonClassB.getInstance(i);
@@ -4047,6 +4412,7 @@
         // second level child class creation
         markerValue = undefined;
         className = "multitonClassC";
+        ctxMsg = className + ctxMsgSuffix;
         JSC.globalize(multitonClassB);
         classDefs = getIt({
             className : className,
@@ -4056,6 +4422,7 @@
             }
         });
         var multitonClassC = generator(classDefs);
+        multitonClassC[proto].className = className;
         equal(markerValue, undefined, ctxMsg + "Marker value must not be altered by class inheritance mechanism")
         testClassCommon(multitonClassC, className, multitonClassB);
         testClassCommonSingleton(multitonClassC, className);
@@ -4081,10 +4448,10 @@
         equal(instance.fnValue, className + ".fnC",  ctxMsg + "Result of method call");
         for(i = 0; i < 4; i++) {
             strictEqual(multitonClassC.getInstance("C"), instance, ctxMsg + "Only one instance must be created in a multiton for a given key");
-            strictEqual(multitonClassC.getInstance("C").guid, instance.guid, ctxMsg + "Only one instance must be created in a multiton for a given key");
+            strictEqual(JSC.id(multitonClassC.getInstance("C")), JSC.id(instance), ctxMsg + "Only one instance must be created in a multiton for a given key");
         }
         notStrictEqual(multitonClassC.getInstance("c"), instance, ctxMsg + "Another key must produce another instance in multiton pattern");
-        notStrictEqual(multitonClassC.getInstance("c").guid, instance.guid, ctxMsg + "Another key must produce another instance in multiton pattern");
+        notStrictEqual(JSC.id(multitonClassC.getInstance("c")), JSC.id(instance), ctxMsg + "Another key must produce another instance in multiton pattern");
         for(i = 0; i < 4; i++) {
             notStrictEqual(multitonClassC.getInstance(i), instance, ctxMsg + "Only one instance must be created in a multiton for a given key");
             instance = multitonClassC.getInstance(i);

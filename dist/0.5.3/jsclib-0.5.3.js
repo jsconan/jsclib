@@ -3,6 +3,7 @@
  * Copyright 2013 Jean-Sebastien CONAN
  * Released under the MIT license
  */
+(function($){
 (function(installer){
     if( "function" === typeof define ) {
         define(installer);
@@ -1998,6 +1999,1302 @@
         };
     }
 
+    var
+        // load the "localStorage" entry, or stash its absence by a dummy object
+        _localData = localStorage || {},
+
+        // extract or create method to read a value from localStorage
+        _getItem = _localData.getItem || function(name) {
+            return this[name];
+        },
+
+        // extract or create method to write a value to localStorage
+        _setItem = _localData.setItem || function(name, value) {
+            this[name] = value;
+        },
+
+        // extract or create method to remove a value from localStorage
+        _removeItem = _localData.removeItem || function(name) {
+            undefined !== this[name] && delete this[name];
+        },
+
+        /**
+         * Class definition with multiton pattern to wrap access to localStorage
+         */
+        LocalStorage = {
+            /**
+             * Name of class
+             *
+             * @type String
+             */
+            className : "LocalStorage",
+
+            /**
+             * Init the localStorage wrapper.
+             *
+             * @param {String} name Name of the entry point in the local storage. By default use the library name (JSC).
+             */
+            initialize : function(name) {
+                this.name = name || this.name;
+                this.load();
+                localStorage && this.bindEvent(globalContext, "unload", JSC.attach(this, "store"));
+            },
+
+            /**
+             * Load data from local storage
+             *
+             * @return {JSC.localStorage} Plugin entry point
+             */
+            load : function() {
+                this.data = JSC.jsonDecode(_getItem.call(_localData, this.name)) || {};
+            },
+
+            /**
+             * Store all the data from the wrapper to local storage
+             *
+             * @return {JSC.localStorage} Plugin entry point
+             */
+            store : function(){
+                if( JSC.isEmptyObject(this.data) ) {
+                    _removeItem.call(_localData, this.name);
+                } else {
+                    _setItem.call(_localData, this.name, JSC.jsonEncode(this.data));
+                }
+            },
+
+            /**
+             * Set data to local storage wrapper.
+             *
+             * @param {String} name Name of the entry to set
+             * @param {Object} data Data to set in the entry
+             * @return {JSC.localStorage} Plugin entry point
+             */
+            set : function(name, data) {
+                this.data[name] = data;
+                return this;
+            },
+
+            /**
+             * Get data from local storage wrapper.
+             *
+             * @param {String} name Name of the entry to get
+             * @return {Object} Return the data from the entry
+             */
+            get : function(name) {
+                return this.data[name];
+            },
+
+            /**
+             * Remove an entry from local storage wrapper.
+             *
+             * @param {String} name Name of the entry to remove
+             * @return {Object} Return the removed data
+             */
+            remove : function(name) {
+                var data = this.data[name];
+                undefined !== data && delete this.data[name];
+                return data;
+            },
+
+            /**
+             * Erase all the data in the local storage wrapper.
+             *
+             * @return {JSC.localStorage} Plugin entry point
+             */
+            clear : function() {
+                this.data = {};
+                return this;
+            },
+
+            /**
+             * Bind an event handler on an element for particular event name
+             *
+             * @param {Element} element Element on which bind the event
+             * @param {String} eventName Name of the event to bind
+             * @param {Function} eventHandler Handler to call when event is fired
+             */
+            bindEvent : function(element, eventName, eventHandler) {
+                if( element.addEventListener ) {
+                    element.addEventListener(eventName, eventHandler, false);
+                } else if( element.attachEvent ) {
+                    element.attachEvent("on" + eventName, eventHandler);
+                }
+            },
+
+            /**
+             * Name of the data set in local storage
+             *
+             * @type String
+             */
+            name : JSC.className,
+
+            /**
+             * Data set
+             *
+             * @type Object
+             */
+            data : null
+        };
+
+    // build and declare the class
+    JSC.localStorage = JSC.multiton(LocalStorage);
+
+    var
+        // default error template used when an error occurs
+        _errorTemplate = '<div class="error">An error has occurred !</div>',
+
+        // void jQuery selection
+        _voidJQ = $();
+
+    /**
+     * Class to handle HTML templating from JavaScript
+     */
+    JSC.Template = JSC.create({
+        /**
+         * Name of the class
+         *
+         * @constant
+         * @type String
+         */
+        className : "Template",
+
+        /**
+         * Delegate constructor
+         *
+         * @constructor
+         * @param {String} template A DOM identifier to load HTML fragment as a template, an HTML code, or an URL to get template
+         */
+        initialize : function(template) {
+            this.renderTo = [];
+            this.modifiers = {};
+            this.postProcessors = {};
+            template && this.load(template);
+        },
+
+        /**
+         * Loads a template
+         *
+         * @param {String} template A DOM identifier to load HTML fragment as a template, an HTML code, or an URL to get template
+         * @return {Template} Return the instance for chaining
+         */
+        load : function(template) {
+            this.template = "";
+            this.loaded = false;
+
+            // load html from a known DOM element when selector is given...
+            if( JSC.isString(template) ) {
+                if( JSC.isHTML(template) ) {
+                    // template is HTML, just copy
+                    this.template = template;
+                    this.loaded = true;
+                } else if( JSC.isSelector(template) ) {
+                    // template is a CSS selector, load related content
+                    this.template = $(template).html();
+                    this.loaded = true;
+                } else if( JSC.isURL(template) ) {
+                    // otherwise template is an URL, load it with AJAX
+                    $.ajax({
+                        url: template,
+                        cache: false,
+                        dataType: "text",
+                        error: this.attach("_ajaxTemplateError"),
+                        success: this.attach("_ajaxTemplateSuccess")
+                    });
+                    return this;
+                } else {
+                    // unknown format, assume error
+                    this.template = this.errorTemplate;
+                    this.loaded = true;
+                }
+            } else if( template && template.jquery ) {
+                // template is a jQuery selection, load related content
+                this.template = template.html();
+                this.loaded = true;
+            } else {
+                // unknown format, assume error
+                this.template = this.errorTemplate;
+                this.loaded = true;
+            }
+
+            // compile template when loaded, fire optional triggers
+            if( this.loaded ) {
+                this.template = this.trigger("load", this.template, template, this) || this.template;
+                this.compile();
+                this.nodes = this.trigger("loaded", this.nodes, this.template, this) || this.nodes;
+            }
+            return this;
+        },
+
+        /**
+         * Renders the loaded template
+         *
+         * @param {Object} data The dataset used to fill the template, or an URL to get data
+         * @param {String|jQuery} [renderTo] Entry point in which render the template
+         * @param {Boolean} [clean] Flag that force cleanning of the entry point
+         * @return {Template|jQuery} Return the instance for chaining or filled elements when no entry point was given
+         */
+        render : function(data, renderTo, clean) {
+            data = data || {};
+
+            // process the render when entry point is given
+            if( renderTo ) {
+                // assume that the entry point is a jQuery selection
+                renderTo = renderTo.jquery ? renderTo : $(renderTo);
+                clean = clean ? true : false;
+
+                // need to load distant data ?
+                if( JSC.isString(data) ) {
+                    if( JSC.isURL(data) ) {
+                        // data is an URL, load it with AJAX
+                        $.ajax({
+                            url: data,
+                            cache: false,
+                            dataType: "json",
+                            error: JSC.attach(this, "_ajaxDataError", renderTo, clean),
+                            success: JSC.attach(this, "_ajaxDataSuccess", renderTo, clean)
+                        });
+                        return this;
+                    } else {
+                        // the dataset format is unknown, try to eval as JSON...
+                        data = JSC.jsonDecode(data) || [];
+                    }
+                }
+
+                // add descriptor for in-time rendering
+                this.renderTo.push({
+                    place : renderTo,
+                    data : data,
+                    clean : clean
+                });
+
+                // render and inject the filled template in given entry point if the template is already loaded
+                // otherwise, il will be rendered when loaded
+                return this.inject();
+            }
+
+            // no entry point given, just renders the template in memory and returns the result
+            return this.compose(data);
+        },
+
+        /**
+         * Fills the loaded template with data and renders it in each registered entry point
+         *
+         * @return {Template} Return the instance for chaining
+         */
+        inject : function() {
+            if( this.loaded ) {
+                // process each render registry
+                while( this.renderTo.length ) {
+                    // extract and remove one render registry
+                    var nodes, entry = this.renderTo.splice(0, 1)[0];
+
+                    // clean entry point when needed
+                    entry.clean && entry.place.empty();
+
+                    // do the rendering and fire optional trigger
+                    nodes = this.compose(entry.data);
+                    nodes = this.trigger("render", nodes, entry.data, this) || nodes;
+                    entry.place.append(nodes);
+                    this.trigger("append", entry.place, nodes, entry.data, this);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * Callback used to handle errors while load a template with AJAX
+         *
+         * @private
+         * @param {jqXHR} jqXHR Transport object
+         * @param {String} textStatus A string describing the type of error that occurred
+         * @param {String} errorThrown Optional exception object
+         */
+        _ajaxTemplateError : function(jqXHR, textStatus, errorThrown) {
+            var template = this.errorTemplate;
+            template = this.trigger("error", template, textStatus, jqXHR, errorThrown, this) || template;
+            this.load(template).loaded && this.inject();
+        },
+
+        /**
+         * Callback used to handle a template got with an AJAX loading
+         *
+         * @private
+         * @param {String} template The received template
+         * @param {String} textStatus A string describing the status
+         * @param {jqXHR} jqXHR Transport object
+         */
+        _ajaxTemplateSuccess : function(template, textStatus, jqXHR) {
+            template = this.trigger("success", template, textStatus, jqXHR, this) || template;
+            this.load(template).loaded && this.inject();
+        },
+
+        /**
+         * Callback used to handle errors while load a dataset with AJAX
+         *
+         * @private
+         * @param {String|jQuery} [renderTo] Entry point in which render the template
+         * @param {Boolean} [clean] Flag that force cleanning of the entry point
+         * @param {jqXHR} jqXHR Transport object
+         * @param {String} textStatus A string describing the type of error that occurred
+         * @param {String} errorThrown Optional exception object
+         */
+        _ajaxDataError : function(renderTo, clean, jqXHR, textStatus, errorThrown) {
+            var template = this.errorTemplate;
+            template = this.trigger("dataError", renderTo, clean, textStatus, jqXHR, errorThrown, this) || template;
+            if( renderTo ) {
+                clean && renderTo.empty();
+                renderTo.append($(template));
+            }
+        },
+
+        /**
+         * Callback used to handle a dataset got with an AJAX loading
+         *
+         * @private
+         * @param {String|jQuery} [renderTo] Entry point in which render the template
+         * @param {Boolean} [clean] Flag that force cleanning of the entry point
+         * @param {String} data The received dataset
+         * @param {String} textStatus A string describing the status
+         * @param {jqXHR} jqXHR Transport object
+         */
+        _ajaxDataSuccess : function(renderTo, clean, data, textStatus, jqXHR) {
+            data = this.trigger("dataSuccess", data, renderTo, clean, textStatus, jqXHR, this) || data;
+            this.render(data, renderTo, clean);
+        },
+
+        /**
+         * Compiles the loaded template
+         *
+         * @return {Template} Return the instance for chaining
+         */
+        compile : function() {
+            this.nodes = this.template ? $(this.template) : _voidJQ;
+            return this;
+        },
+
+        /**
+         * Get a copy of the template
+         *
+         * @return {jQuery} Return a copy of the template
+         */
+        cloneTemplate : function() {
+            if( this.nodes && this.nodes.length ) {
+                return this.nodes.clone();
+            }
+            return _voidJQ;
+        },
+
+        /**
+         * Fill the loaded template with data and returns the generated HTML code
+         *
+         * @param {Object} data The dataset from which get values
+         * @param {jQuery} [nodes] The elements tree in which fill the values
+         * @param {boolean} [isGlobal] Internal use only - Flag to indicate that the template is on global level
+         * @return {jQuery} The rendered elements
+         */
+        compose : function(data, nodes, isGlobal) {
+            var i, template, fragment, blocks, value, that = this;
+
+            // assume arguments
+            data = data || [];
+            isGlobal = isGlobal || !nodes;
+            nodes = nodes || this.cloneTemplate();
+
+            // different processing according to type of the given dataset
+            if( JSC.isArray(data) ) {
+                // find optional sub-template
+                template = nodes.find('[data-context="template"]');
+                if( template.length ) {
+                    // sub-template found, process it with the given dataset
+                    template.each(function(){
+                        var element = $(this);
+                        element.append(that.compose(data, element.children().remove(), isGlobal));
+                    });
+                } else if( nodes.length ) {
+                    // apply each data entry on a clone of the template and add the result to a rendering pool
+                    blocks = _voidJQ;
+                    for(i = 0; i < data.length; i++) {
+                        // get a clone of the template and fill it with data
+                        fragment = this.compose(data[i], i + 1 < data.length ? nodes.clone() : nodes);
+
+                        // do a post process on the rendered template
+                        isGlobal && this.globalPostProcess(fragment, data[i]);
+
+                        // add the rendered template to the rendering pool
+                        blocks = blocks.add(fragment);
+                    }
+                    nodes = blocks;
+                }
+            } else {
+                // apply each data value on placeholders in the template
+                for(i in data) {
+                    value = this.modifiedData(i, data);
+                    fragment = nodes.find('[data-name="' + i + '"]');
+
+                    // different rendering according to type of the value
+                    if( JSC.isArray(value) ) {
+                        // special processing for array values : replace content in template by composed version
+                        fragment.each(function(){
+                            var element = $(this);
+                            element.append(that.compose(value, element.children().remove()));
+                        });
+                    } else {
+                        // just fill the placeholder with the related data
+                        fragment.html(value);
+                    }
+
+                    // do a post process on the rendered fragment
+                    this.postProcess(i, fragment, data);
+                }
+
+                // do a post process on the rendered template
+                isGlobal && this.globalPostProcess(nodes, data);
+            }
+            return nodes;
+        },
+
+        /**
+         * Get particular value from dataset, after related modifier has been applied on
+         *
+         * @param {String} name The name of the needed value
+         * @param {Object} data The dataset from which get values
+         * @return {Object} Return the modified value
+         */
+        modifiedData : function(name, data) {
+            if( JSC.isFunction(this.modifiers[name]) ) {
+                return this.modifiers[name].call(this, data[name], name, data, this);
+            }
+            return data[name];
+        },
+
+        /**
+         * Do an optional post processing on the rendered fragment
+         *
+         * @param {String} name The name of the needed value
+         * @param {jQuery} fragment The rendered fragment
+         * @param {Object} data The related dataset
+         * @return {jQuery} Return the modified fragment
+         */
+        postProcess : function(name, fragment, data) {
+            if( JSC.isFunction(this.postProcessors[name]) ) {
+                this.postProcessors[name].call(this, fragment, data, name, this);
+            }
+            return fragment;
+        },
+
+        /**
+         * Do an optional post processing on the rendered template
+         *
+         * @param {jQuery} template The rendered template
+         * @param {Object} data The related dataset
+         * @return {jQuery} Return the modified fragment
+         */
+        globalPostProcess : function(template, data) {
+            if( JSC.isFunction(this.globalPostProcessor) ) {
+                this.globalPostProcessor.call(this, template, data, this);
+            }
+            return template;
+        },
+
+        /**
+         * Set the list of modifiers used to handle formatting of particular data
+         *
+         * @type Function({Object} value, {String} name, {Object} data, {Template} tpl))
+         *
+         * @param {Object} modifiers The new list of modifiers
+         * @return {Template} Return the instance for chaining
+         */
+        setModifiers : function(modifiers) {
+            if( JSC.isObject(modifiers) ) {
+                this.modifiers = modifiers;
+            }
+            return this;
+        },
+
+        /**
+         * Get the list of modifiers used to handle formatting of particular data
+         *
+         * @type Function({Object} value, {String} name, {Object} data, {Template} tpl))
+         *
+         * @return {Object} The list of modifiers
+         */
+        getModifiers : function() {
+            return this.modifiers;
+        },
+
+        /**
+         * Set a particular data modifier
+         *
+         * @type Function({Object} value, {String} name, {Object} data, {Template} tpl))
+         *
+         * @param {String} name The name of data for which set the modifier
+         * @param {Function} modifier The new modifier
+         * @return {Template} Return the instance for chaining
+         */
+        setModifier : function(name, modifier) {
+            if( JSC.isFunction(modifier) ) {
+                this.modifiers[name] = modifier;
+            }
+            return this;
+        },
+
+        /**
+         * Get a particular data modifier
+         *
+         * @type Function({Object} value, {String} name, {Object} data, {Template} tpl))
+         *
+         * @return {Function} The modifier
+         */
+        getModifier : function(name) {
+            return this.modifiers[name];
+        },
+
+        /**
+         * Set the list of post processors to apply on rendered template
+         *
+         * @type Function({jQuery} fragment, {Object} data, {String} name, {Template} tpl))
+         *
+         * @param {Object} postProcessors The new list of post processors
+         * @return {Template} Return the instance for chaining
+         */
+        setPostProcessors : function(postProcessors) {
+            if( JSC.isObject(postProcessors) ) {
+                this.postProcessors = postProcessors;
+            }
+            return this;
+        },
+
+        /**
+         * Get the list of post processors to apply on rendered template
+         *
+         * @type Function({jQuery} fragment, {Object} data, {String} name, {Template} tpl))
+         *
+         * @return {Object} The list of post processors
+         */
+        getPostProcessors : function() {
+            return this.postProcessors;
+        },
+
+        /**
+         * Set a particular post processor
+         *
+         * @type Function({jQuery} fragment, {Object} data, {String} name, {Template} tpl))
+         *
+         * @param {String} name The name of data for which set the post processor
+         * @param {Function} postProcessor The new post processor
+         * @return {Template} Return the instance for chaining
+         */
+        setPostProcessor : function(name, postProcessor) {
+            if( JSC.isFunction(postProcessor) ) {
+                this.postProcessors[name] = postProcessor;
+            }
+            return this;
+        },
+
+        /**
+         * Get a particular post processor
+         *
+         * @type Function({jQuery} fragment, {Object} data, {String} name, {Template} tpl))
+         *
+         * @return {Function} The post processor
+         */
+        getPostProcessor : function(name) {
+            return this.postProcessors[name];
+        },
+
+        /**
+         * Set the global post processor
+         *
+         * @type Function({jQuery} template, {Object|Array} data, {Template} tpl))
+         *
+         * @param {Function} postProcessor The new global post processor
+         * @return {Template} Return the instance for chaining
+         */
+        setGlobalPostProcessor : function(postProcessor) {
+            if( JSC.isFunction(postProcessor) ) {
+                this.globalPostProcessor = postProcessor;
+            }
+            return this;
+        },
+
+        /**
+         * Get a particular post processor
+         *
+         * @type Function({jQuery} template, {Object|Array} data, {Template} tpl))
+         *
+         * @return {Function} The post processor
+         */
+        getGlobalPostProcessor : function(name) {
+            return this.globalPostProcessor;
+        },
+
+        /**
+         * Set or get the trigger fired before a rendered template is appended to an entry point
+         *
+         * @type Function({jQuery} nodes, {Object} data, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onRender : function(fn) {
+            return this.on("render", fn);
+        },
+
+        /**
+         * Set or get the trigger fired after a rendered template is appended to an entry point
+         *
+         * @type Function({jQuery} entry, {jQuery} nodes, {Object} data, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onAppend : function(fn) {
+            return this.on("append", fn);
+        },
+
+        /**
+         * Set or get the trigger fired after template is loaded
+         *
+         * @type Function({String} template, {String} source, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onLoad : function(fn) {
+            return this.on("load", fn);
+        },
+
+        /**
+         * Set or get the trigger fired after template is loaded and compiled
+         *
+         * @type Function({jQuery} nodes, {String} template, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onLoaded : function(fn) {
+            return this.on("loaded", fn);
+        },
+
+        /**
+         * Set or get the trigger fired after succesfull load of a template with AJAX
+         *
+         * @type Function({String} template, {String} textStatus, {jqXHR} jqXHR, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onSuccess : function(fn) {
+            return this.on("success", fn);
+        },
+
+        /**
+         * Set or get the trigger fired when error occurs on template loading with AJAX
+         *
+         * @type Function({String} template, {String} textStatus, {jqXHR} jqXHR, {String} errorThrown, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onError : function(fn) {
+            return this.on("error", fn);
+        },
+
+        /**
+         * Set or get the trigger fired after succesfull load of a dataset with AJAX
+         *
+         * @type Function({Object} data, {jQuery} renderTo, {Boolean} clean, {String} textStatus, {jqXHR} jqXHR, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onDataSuccess : function(fn) {
+            return this.on("dataSuccess", fn);
+        },
+
+        /**
+         * Set or get the trigger fired when error occurs on data loading with AJAX
+         *
+         * @type Function({jQuery} renderTo, {Boolean} clean, {String} textStatus, {jqXHR} jqXHR, {String} errorThrown, {Template} tpl)
+         *
+         * @param {Function} fn The related function to call when event occurs
+         * @return {Function|Template} Return the event related function in getter mode, or return the current instance in setter mode
+         */
+        onDataError : function(fn) {
+            return this.on("dataError", fn);
+        },
+
+        /**
+         * Flag to indicate whether a template is loaded or not
+         *
+         * @type Boolean
+         */
+        loaded : false,
+
+        /**
+         * List of entry points in which render the template
+         *
+         * @type Array
+         */
+        renderTo : [],
+
+        /**
+         * HTML code of the template
+         *
+         * @type String
+         */
+        template : "",
+
+        /**
+         * HTML code of the template used when error occurs
+         *
+         * @type String
+         */
+        errorTemplate : _errorTemplate,
+
+        /**
+         * DOM elements compiled from template code
+         *
+         * @type jQuery
+         */
+        nodes : _voidJQ,
+
+        /**
+         * List of modifiers used to handle formatting of particular data
+         *
+         * @type Object
+         */
+        modifiers : null,
+
+        /**
+         * List of post processors to apply on rendered template
+         *
+         * @type Object
+         */
+        postProcessors : null,
+
+        /**
+         * Global post processor to apply on rendered template
+         *
+         * @type Function
+         */
+        globalPostProcessor : null
+    });
+
+    JSC.Template.implement("SimpleEvents").self(function(template) {
+        return new this(template);
+    });
+
+    var
+        // get the native method to slice array
+        _arraySlice = [].slice,
+
+        /**
+         * Class to handle schemas
+         */
+        Schema = {
+            /**
+             * Name of the class
+             *
+             * @constant
+             * @type String
+             */
+            className : "Schema",
+
+            /**
+             * Delegate constructor
+             *
+             * @constructor
+             * @param {String} name Name of the represented node
+             * @param {Object} nested Nested item
+             */
+            initialize : function(name, nested) {
+                this.name = name;
+                this.nested = nested;
+                this.nodes = {};
+            },
+
+            /**
+             * Rename the node
+             *
+             * @param {String} name Name of the represented node
+             */
+            rename : function(name) {
+                this.name = name;
+            },
+
+            /**
+             * Assign a nested item
+             *
+             * @param {Object} nested Nested item
+             */
+            nest : function(nested) {
+                this.nested = nested;
+            },
+
+            /**
+             * Find a node for given name and parent. If it does not exist, create it at appropriate place
+             *
+             * @param {String} name Name of the node to find
+             * @param {String|Schema} parent Parent of the node
+             * @return {Schema} Return the wanted node
+             */
+            node : function(name, parent) {
+                var node = JSC.isObject(name) && name instanceof JSC.Schema ? name : this.find(name);
+                return node || (parent ? this.node(parent) : this).add(name);
+            },
+
+            /**
+             * Move a node to another place
+             *
+             * @param {String} name Name of the node to move
+             * @param {String|Schema} to New parent of the node
+             * @return {Schema} Return the moved node
+             */
+            move : function(name, to) {
+                var node = this.remove(name);
+                node && (to ? this.node(to) : this).add(node);
+                return node;
+            },
+
+            /**
+             * Add a node. If the node already exists, just return it.
+             *
+             * @param {String} name Name of the node to add
+             * @return {Schema} Return the added node
+             */
+            add : function(name) {
+                var node;
+
+                // is a node given ?
+                if( JSC.isObject(name) && name instanceof JSC.Schema ) {
+                    // load the given node
+                    node = name;
+                    name = node.name;
+                } else {
+                    // try to find node in this, or create it
+                    node = this.nodes[name] || JSC.Schema(name);
+                }
+
+                // force node in place, then return it
+                this.nodes[name] = node;
+                return node;
+            },
+
+            /**
+             * Remove a node.
+             *
+             * @param {String} name Name of the node to remove
+             * @return {Schema} Return the removed node
+             */
+            remove : function(name) {
+                var i, node;
+                if( name ) {
+                    // wanted node is in this ?
+                    if( this.nodes[name] ) {
+                        node = this.nodes[name];
+                        delete this.nodes[name];
+                        return node;
+                    }
+
+                    // try to find in children
+                    for(i in this.nodes) {
+                        node = this.nodes[i].remove(name);
+                        if( node ) {
+                            return node;
+                        }
+                    }
+                }
+                return null;
+            },
+
+            /**
+             * Find a node for a given name.
+             *
+             * @param {String} name Name of the node to find
+             * @return {Schema} Return the wanted node, or null if not found
+             */
+            find : function(name) {
+                var i, node;
+                if( name ) {
+                    // wanted node is in this ?
+                    if( this.nodes[name] ) {
+                        return this.nodes[name];
+                    }
+
+                    // try to find in children
+                    for(i in this.nodes) {
+                        node = this.nodes[i].find(name);
+                        if( node ) {
+                            return node;
+                        }
+                    }
+                }
+                return null;
+            },
+
+            /**
+             * Call a function on each node, from root to leafs
+             *
+             * @type Function({Schema} node)
+             *
+             * @return {Schema} Return the current instance
+             */
+            walk : function(fn) {
+                var name, node, args = _arraySlice.call(arguments, 0);
+
+                // call on current node
+                args[0] = this;
+                fn.apply(this, args);
+
+                // call on each child
+                for(name in this.nodes) {
+                    node = this.nodes[name];
+                    node.walk.apply(node, arguments);
+                }
+                return this;
+            },
+
+            /**
+             * Call a function on each node, from leafs to root
+             *
+             * @type Function({Schema} node)
+             *
+             * @return {Schema} Return the current instance
+             */
+            walkBack : function(fn) {
+                var name, node, args = _arraySlice.call(arguments, 0);
+
+                // call on each child
+                for(name in this.nodes) {
+                    node = this.nodes[name];
+                    node.walkBack.apply(node, arguments);
+                }
+
+                // call on current node
+                args[0] = this;
+                fn.apply(this, args);
+                return this;
+            },
+
+            /**
+             * Name of the node
+             *
+             * @type String
+             */
+            name : null,
+
+            /**
+             * Nested item
+             *
+             * @type Object
+             */
+            nested : null,
+
+            /**
+             * List of nodes
+             *
+             * @type Object
+             */
+            nodes : null
+        };
+
+    JSC.Schema = JSC.create(Schema).self(function(name, nested) {
+        return new this(name, nested);
+    });
+
+    /**
+     * Class to handle benchmarks
+     *
+     * @todo Use delayed calls structure (setTimeout)
+     * @todo Add handlers called to build particular context before measures
+     * @todo Reduce default loops number, the measured test functions must implement a minimal heap of code to be visible in measure without run too many loops
+     */
+    JSC.Benchmark = JSC.create({
+        /**
+         * Name of the class
+         *
+         * @constant
+         * @type String
+         */
+        className : "Benchmark",
+
+        /**
+         * Delegate constructor
+         *
+         * @constructor
+         * @param {Object} config A config object to setup the benchmark
+         */
+        initialize : function(config) {
+            // set initial config
+            if( config ) {
+                // load context values
+                this.name = config.name || this.name;
+                this.times = config.times || this.times;
+                this.loops = config.loops || this.loops;
+                this.benchs = config.benchs || [];
+
+                // load event handlers
+                this.setHandlers(config.handlers);
+            }
+
+            // fire event after benchmark initialize
+            this.trigger("initialize", config, this);
+        },
+
+        /**
+         * Run the benchmark
+         */
+        run : function() {
+            var i, benchItem, result, handlers, measures = [];
+
+            // fire event before the benchmark run
+            this.trigger("beforeRun", this.benchs, this);
+
+            // run measures for each bench
+            for(i = 0; i < this.benchs.length; i++) {
+                benchItem = this.benchs[i];
+
+                // fire event before the bench measures
+                this.trigger("beforeBench", benchItem, this);
+
+                // do the bench measures
+                try {
+                    // is there a benchmark suite nested ?
+                    if( benchItem.benchs ) {
+                        // need event handlers in list
+                        if( !handlers ) {
+                            handlers = this.getHandlers();
+                        }
+
+                        // benchmark descriptor ?
+                        if( !(benchItem instanceof JSC.Benchmark) ) {
+                            // get a valid instance of benchmark suite
+                            benchItem = JSC.Benchmark(JSC.merge(true, {
+                                name : this.name,
+                                times : this.times,
+                                loops : this.loops,
+                                handlers : handlers
+                            }, benchItem));
+                        } else {
+                            // just custom the benchmark suite with handlers
+                            benchItem.setHandlers(handlers);
+                        }
+
+                        // run the nested benchmark suite
+                        result = benchItem.run();
+                    } else {
+                        // standard bench measures
+                        result = this.bench(benchItem.name, benchItem.bench, benchItem.loops, benchItem.times);
+                    }
+                } catch(e) {
+                    result = this.measureDetails(e, benchItem.name, benchItem.bench);
+                }
+                measures.push(result);
+
+                // fire event after the bench measures
+                this.trigger("afterBench", result, benchItem, this);
+            }
+
+            // fire event after the benchmark run
+            this.trigger("afterRun", measures, this);
+
+            return measures;
+        },
+
+        /**
+         * Run a bench
+         *
+         * @param {String} name The measures' name
+         * @param {Function} fn The function to measure
+         * @param {Number} loops The number of times the function must be running to get an exploitable measure
+         * @param {Number} times The number of times the measure must be taken
+         * @return {Object} Returns the measure details
+         * @throws JSC.Error
+         */
+        bench : function(name, fn, loops, times) {
+            var i, details, measures = [];
+
+            // validate the params
+            times = times|| this.times;
+            loops = loops || this.loops;
+            if( !JSC.isFunction(fn) ) {
+                JSC.error("A valid function is needed !");
+            }
+
+            // take measures
+            for(i = 0; i < times; i++) {
+                // fire event before the measures
+                this.trigger("beforeMeasure", name, fn, this);
+
+                // do the measures
+                try {
+                    measures.push(this.measure(fn, loops));
+                    details = this.measureDetails(measures, name, fn);
+                } catch(e) {
+                    details = this.measureDetails(e, name, fn);
+                }
+
+                // fire event after the bench measures
+                this.trigger("afterMeasure", details, this);
+            }
+
+            // compute detailed measures
+            return details;
+        },
+
+        /**
+         * Take a benchmark measure on a particular function.
+         *
+         * @param {Function} fn The function to measure
+         * @param {Number} loops The number of times the function must be running to get an exploitable measure
+         * @return {Number} Returns the duration for this measure
+         * @throws JSC.Error
+         */
+        measure : function(fn, loops) {
+            var i, t1, t2;
+
+            // validate the params
+            loops = loops || this.loops;
+            if( !JSC.isFunction(fn) ) {
+                JSC.error("A valid function is needed !");
+            }
+
+            // capture the begin timestamp
+            t1 = this.timestamp();
+
+            // run the function to measure
+            for(i = 0; i < loops; i++) {
+                fn();
+            }
+
+            // capture the end timestamp and compute duration
+            t2 = this.timestamp();
+            return t2 - t1;
+        },
+
+        /**
+         * Get details for a list of measures
+         *
+         * @param {Array} measures The list of measures (a measure is a duration in milliseconds)
+         * @param {String} name A name for the measures
+         * @param {Function} bench The measured function
+         * @return {Object} Returns the detailed measures
+         */
+        measureDetails : function(measures, name, bench) {
+            var i, min, max, duration, measure, result = {};
+
+            // measures are successful ?
+            if( JSC.isArray(measures) ) {
+                // compute detailed measures
+                for(i = 0; i < measures.length; i++) {
+                    measure = measures[i];
+                    min = Math.min(min || measure, measure);
+                    max = Math.max(max || measure, measure);
+                    duration = (duration || 0) + measure;
+                }
+
+                // gathers the details
+                JSC.merge(result, {
+                    duration : duration,
+                    average : duration / (measures.length || 1),
+                    variation : max - min,
+                    min : min,
+                    max : max,
+                    success : true
+                });
+            } else {
+                // error occured on measures
+                result.success = false;
+            }
+
+            // finalizes and returns the details
+            return JSC.merge(result, {
+                name : name,
+                bench : bench,
+                measures : measures
+            });
+        },
+
+        /**
+         * Get the current timestamp as a number of milliseconds since Epok (1970-01-01)
+         *
+         * @return {Number} The current timestamp
+         */
+        timestamp : function() {
+            return (new Date()).getTime();
+        },
+
+        /**
+         * Get event handlers
+         *
+         * @return {Object} Returns the list of installed event handlers
+         */
+        getHandlers : function() {
+            var name, event, handlers = {};
+            for(name in this) {
+                if( "_on" === name.substr(0, 3) && JSC.isFunction(this[name]) ) {
+                    event = name.charAt(3).toLowerCase() + name.substr(4);
+                    handlers[event] = this[name];
+                }
+            }
+            return handlers;
+        },
+
+        /**
+         * Set event handlers
+         *
+         * @param {Object} handlers List of event handlers to install
+         * @return {JSC.Benchmark}
+         */
+        setHandlers : function(handlers) {
+            // fire event before add handlers
+            if( false !== this.trigger("beforeHandlers", handlers, this) ) {
+                // load event handlers
+                if( handlers ) {
+                    JSC.each(handlers, this.attach("on"));
+                }
+            }
+
+            // fire event after handlers added
+            this.trigger("afterHandlers", handlers, this);
+            return this;
+        },
+
+        /**
+         * Name of the benchmark
+         *
+         * @type String
+         */
+        name : "JavaScript Performance Benchmark",
+
+        /**
+         * Number of times the bench function is run to take a measure
+         *
+         * @type Number
+         */
+        loops : 1000000,
+
+        /**
+         * Number of times the measure is taken
+         *
+         * @type Number
+         */
+        times : 4,
+
+        /**
+         * The benchmark suite
+         *
+         * @type Array
+         */
+        benchs : null
+    });
+
+    JSC.Benchmark.implement("SimpleEvents").self(function(config) {
+        return new this(config);
+    });
+
     // exports public entries for the library
     return JSC;
 });
+})(jQuery);

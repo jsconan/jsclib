@@ -1,6 +1,5 @@
 /*!
  * JavaScript Class to handle schemas v1.0 (use JSC v0.5.1)
- *
  * Copyright 2013 Jean-Sebastien CONAN
  * Released under the MIT license
  */
@@ -219,7 +218,7 @@
             nodes : null
         };
 
-    JSC.Schema = JSC(Schema).self(function(name, nested) {
+    JSC.Schema = JSC.create(Schema).self(function(name, nested) {
         return new this(name, nested);
     });
 })(JSC);
